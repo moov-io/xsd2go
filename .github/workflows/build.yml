@@ -28,8 +28,8 @@ jobs:
     - name: Get Go dependencies
       run: go get -v -t -d ./...
 
-    - name: Build gocomply_xsd2go
-      run: go build -v ./cli/gocomply_xsd2go
+    - name: Build moovio_xsd2go
+      run: go build -v ./cli/moovio_xsd2go
 
     - name: Unit tests
       run: go test ./...

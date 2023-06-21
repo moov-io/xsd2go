@@ -10,8 +10,8 @@
 builds:
 - env:
   - CGO_ENABLED=0
-  main: ./cli/gocomply_xsd2go/main.go
-  binary: gocomply_xsd2go
+  main: ./cli/moovio_xsd2go/main.go
+  binary: moovio_xsd2go
 
   goos:
     - windows
@@ -48,7 +48,7 @@ changelog:
     - '^test:'
 
 nfpms:
-  - id: gocomply_xsd2go
+  - id: moovio_xsd2go
 
     file_name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Release }}.{{ .Arch }}"
     replacements:
@@ -63,7 +63,7 @@ nfpms:
 
     bindir: /usr/bin
 
-    homepage: github.com/GoComply/xsd2go
+    homepage: github.com/moov-io/xsd2go
     license: The Unlicense
     description: Automatically generate golang xml parser based on XSD
     release: 1
