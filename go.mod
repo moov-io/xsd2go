@@ -1,4 +1,4 @@
-module github.com/moov-io/xsd2go
+module github.com/gocomply/xsd2go
 
 go 1.18
 

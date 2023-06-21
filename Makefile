@@ -11,7 +11,7 @@ endif
 all: vendor build test
 
 build:
-	$(GOBUILD) ./cli/moovio_xsd2go
+	$(GOBUILD) ./cli/gocomply_xsd2go
 
 vendor:
 	$(GO) mod tidy
@@ -19,4 +19,4 @@ vendor:
 	$(GO) mod verify
 
 test:
-	go test -v github.com/moov-io/xsd2go/... -count=1 -p 1 -parallel 1
+	go test -v github.com/gocomply/xsd2go/... -count=1 -p 1 -parallel 1

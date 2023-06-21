@@ -3,7 +3,7 @@ package xsd2go
 import (
 	"fmt"
 
-	"github.com/moov-io/xsd2go/pkg/xsd"
+	"github.com/gocomply/xsd2go/pkg/xsd"
 )
 
 func Convert(xsdFile, outputDir, outputFile, goPackage, nsPrefix string, tmplDir string) error {

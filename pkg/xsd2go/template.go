@@ -11,8 +11,8 @@ import (
 	"strings"
 	"text/template"
 
-	tmpl "github.com/moov-io/xsd2go/pkg/templates"
-	"github.com/moov-io/xsd2go/pkg/xsd"
+	tmpl "github.com/gocomply/xsd2go/pkg/templates"
+	"github.com/gocomply/xsd2go/pkg/xsd"
 )
 
 func GenerateTypes(templateName string, schema *xsd.Schema, outputDir string, outputFile string, tmplDir string) error {

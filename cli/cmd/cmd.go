@@ -5,13 +5,13 @@ import (
 
 	"github.com/urfave/cli"
 
-	"github.com/moov-io/xsd2go/pkg/xsd2go"
+	"github.com/gocomply/xsd2go/pkg/xsd2go"
 )
 
 // Execute ...
 func Execute() error {
 	app := cli.NewApp()
-	app.Name = "moov-io XSD2Go"
+	app.Name = "GoComply XSD2Go"
 	app.Usage = "Automatically generate golang xml parser based on XSD"
 	app.Commands = []cli.Command{
 		convert,

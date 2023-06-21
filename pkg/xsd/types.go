@@ -2,6 +2,7 @@ package xsd
 
 import (
 	"encoding/xml"
+
 	"github.com/iancoleman/strcase"
 )
 
