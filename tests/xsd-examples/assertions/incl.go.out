@@ -5,7 +5,7 @@ package incl
 import (
 	"encoding/xml"
 
-	"github.com/gocomply/rtp20022/pkg/rtp"
+	"github.com/moov-io/rtp20022/pkg/rtp"
 )
 
 // XSD Elements
