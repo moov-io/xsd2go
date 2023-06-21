@@ -23,7 +23,7 @@ import (
             {{ .GoName }} {{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},{{ .Modifiers }}"`
         {{- end }}
         {{- range .Elements }}
-            {{ .GoFieldName }} {{ if .Array }}[]{{ end }}{{ if eq .MinOccurs "0" }}*{{ end }}{{ .GoForeignModule }}{{ .GoTypeName }} `xml:"{{ .Schema.TargetNamespace }} {{ .XmlName }}{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
+            {{ .GoFieldName }} {{ if .Array }}[]{{ end }}{{ if eq .MinOccurs "0" }}*{{ end }}{{ .GoForeignModule }}{{ .GoTypeName }} `xml:"{{ .TargetNamespace }} {{ .XmlName }}{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
         {{- end }}
     }
 
@@ -32,7 +32,7 @@ import (
         func (v {{ .GoName }}) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
             e.EncodeToken(xml.StartElement{Name: xml.Name{Local: start.Name.Local}})
             {{- range .Elements }}
-                e.EncodeElement(v.{{ .GoFieldName }}, xml.StartElement{Name: xml.Name{Local: "{{ .Schema.NsPrefix }}:{{ .XmlName }}"}})
+                e.EncodeElement(v.{{ .GoFieldName }}, xml.StartElement{Name: xml.Name{Local: "{{ .NsPrefix }}:{{ .XmlName }}"}})
             {{- end }}
             e.EncodeToken(xml.EndElement{Name: xml.Name{Local: start.Name.Local}})
             return nil
@@ -55,7 +55,7 @@ import (
             {{- if .IncludeElementTemplate }}
                 {{ InclElem .IncludeTemplateName . }}
             {{- else }}
-                {{ .GoFieldName }} {{ if .Array }}[]{{ end }}{{ if eq .MinOccurs "0" }}*{{ end }}{{ .GoForeignModule }}{{ .GoTypeName }} `xml:"{{ .Schema.TargetNamespace }} {{ .XmlName }}{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
+                {{ .GoFieldName }} {{ if .Array }}[]{{ end }}{{ if eq .MinOccurs "0" }}*{{ end }}{{ .GoForeignModule }}{{ .GoTypeName }} `xml:"{{ .TargetNamespace }} {{ .XmlName }}{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
             {{- end }}
         {{- end }}
         {{- if .Sequence }}
@@ -70,7 +70,7 @@ import (
         func (v {{ .GoName }}) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
             e.EncodeToken(xml.StartElement{Name: xml.Name{Local: start.Name.Local}})
             {{- range .Elements }}
-                e.EncodeElement(v.{{ .GoFieldName }}, xml.StartElement{Name: xml.Name{Local: "{{ .Schema.NsPrefix }}:{{ .XmlName }}"}})
+                e.EncodeElement(v.{{ .GoFieldName }}, xml.StartElement{Name: xml.Name{Local: "{{ .NsPrefix }}:{{ .XmlName }}"}})
             {{- end }}
             e.EncodeToken(xml.EndElement{Name: xml.Name{Local: start.Name.Local}})
             return nil

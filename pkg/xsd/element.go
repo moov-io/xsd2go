@@ -22,13 +22,13 @@ type Element struct {
 	refElm          *Element     `xml:"-"`
 	ComplexType     *ComplexType `xml:"complexType"`
 	SimpleType      *SimpleType  `xml:"simpleType"`
-	Schema          *Schema      `xml:"-"`
+	schema          *Schema      `xml:"-"`
 	typ             Type         `xml:"-"`
 }
 
 func (e *Element) Attributes() []Attribute {
 	if e.typ != nil {
-		return injectSchemaIntoAttributes(e.Schema, e.typ.Attributes())
+		return injectSchemaIntoAttributes(e.schema, e.typ.Attributes())
 	}
 	return []Attribute{}
 }
@@ -90,13 +90,13 @@ func (e *Element) GoForeignModule() string {
 
 	foreignSchema := (*Schema)(nil)
 	if e.refElm != nil {
-		foreignSchema = e.refElm.Schema
+		foreignSchema = e.refElm.schema
 	} else if e.typ != nil {
 		foreignSchema = e.typ.Schema()
 	}
 
-	if foreignSchema != nil && foreignSchema != e.Schema &&
-		foreignSchema.TargetNamespace != e.Schema.TargetNamespace {
+	if foreignSchema != nil && foreignSchema != e.schema &&
+		foreignSchema.TargetNamespace != e.schema.TargetNamespace {
 		return foreignSchema.GoPackageName() + "."
 	}
 	return ""
@@ -130,7 +130,7 @@ func (e *Element) isArray() bool {
 }
 
 func (e *Element) compile(s *Schema, parentElement *Element) {
-	e.Schema = s
+	e.schema = s
 	if e.ComplexType != nil {
 		e.typ = e.ComplexType
 		if e.SimpleType != nil {
@@ -146,19 +146,19 @@ func (e *Element) compile(s *Schema, parentElement *Element) {
 		}
 		e.typ.compile(s, e)
 	} else if e.Type != "" {
-		e.typ = e.Schema.findReferencedType(e.Type)
+		e.typ = e.schema.findReferencedType(e.Type)
 		if e.typ == nil {
 			panic("Cannot resolve type reference: " + string(e.Type))
 		}
 	} else if e.Ref != "" {
-		e.refElm = e.Schema.findReferencedElement(e.Ref)
+		e.refElm = e.schema.findReferencedElement(e.Ref)
 		if e.refElm == nil {
 			panic("Cannot resolve element reference: " + e.Ref)
 		}
 	}
 
 	if e.Ref == "" && e.Type == "" && !e.isPlainString() {
-		e.Schema.registerInlinedElement(e, parentElement)
+		e.schema.registerInlinedElement(e, parentElement)
 	}
 }
 
@@ -182,4 +182,12 @@ func (e *Element) IncludeTemplateName() string {
 		return e.typ.IncludeTemplateName()
 	}
 	return ""
+}
+
+func (e *Element) TargetNamespace() string {
+	return e.schema.TargetNamespace
+}
+
+func (e *Element) NsPrefix() string {
+	return e.schema.NsPrefix
 }
