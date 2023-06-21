@@ -8,7 +8,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-all: vendor build
+all: vendor build test
 
 build:
 	$(GOBUILD) ./cli/moovio_xsd2go
@@ -17,3 +17,6 @@ vendor:
 	$(GO) mod tidy
 	$(GO) mod vendor
 	$(GO) mod verify
+
+test:
+	go test -v github.com/moov-io/xsd2go/... -count=1 -p 1 -parallel 1
