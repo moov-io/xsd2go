@@ -23,7 +23,7 @@ import (
                 Value {{ .GoTypeName }} `xml:",chardata"`
             {{- end }}
             {{- range .Attributes }}
-                {{ .GoName }} {{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},{{ .Modifiers }}"`
+                {{ .GoName }} {{ if eq .Use "optional" }}*{{ end }}{{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},attr{{ if eq .Use "optional" }},omitempty{{ end }}"`
             {{- end }}
             {{- range .Elements }}
                 {{ .GoFieldName }} {{ if .Array }}[]{{ end }}{{ if eq .MinOccurs "0" }}*{{ end }}{{ .GoForeignModule }}{{ .GoTypeName }} `xml:"{{ .TargetNamespace }} {{ .XmlName }}{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
@@ -56,7 +56,7 @@ import (
                 Value {{ .GoTypeName }} `xml:",chardata"`
             {{- end }}
             {{- range .Attributes }}
-                {{ .GoName }} {{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},{{ .Modifiers }}"`
+                {{ .GoName }} {{ if eq .Use "optional" }}*{{ end }}{{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},attr{{ if eq .Use "optional" }},omitempty{{ end }}"`
             {{- end }}
             {{- range .Elements }}
                 {{- if .IncludeElementTemplate }}
@@ -67,7 +67,7 @@ import (
             {{- end }}
             {{- if .Sequence }}
                 {{- range .Sequence.Any }}
-                    Item string `xml:",any"`
+                    Item {{ if eq .MinOccurs "0" }}*{{ end }}string `xml:",any{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
                 {{- end }}
             {{- end }}
         }

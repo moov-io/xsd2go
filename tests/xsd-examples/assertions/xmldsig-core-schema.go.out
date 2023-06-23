@@ -10,7 +10,7 @@ import (
 
 type Signature struct {
 	XMLName        xml.Name
-	Id             string             `xml:"Id,attr,omitempty"`
+	Id             *string            `xml:"Id,attr,omitempty"`
 	SignedInfo     SignedInfoType     `xml:"http://www.w3.org/2000/09/xmldsig# SignedInfo"`
 	SignatureValue SignatureValueType `xml:"http://www.w3.org/2000/09/xmldsig# SignatureValue"`
 	KeyInfo        *KeyInfoType       `xml:"http://www.w3.org/2000/09/xmldsig# KeyInfo,omitempty"`
@@ -20,12 +20,12 @@ type Signature struct {
 type SignatureValue struct {
 	XMLName xml.Name
 	Value   SignatureValueType `xml:",chardata"`
-	Id      string             `xml:"Id,attr,omitempty"`
+	Id      *string            `xml:"Id,attr,omitempty"`
 }
 
 type SignedInfo struct {
 	XMLName                xml.Name
-	Id                     string                     `xml:"Id,attr,omitempty"`
+	Id                     *string                    `xml:"Id,attr,omitempty"`
 	CanonicalizationMethod CanonicalizationMethodType `xml:"http://www.w3.org/2000/09/xmldsig# CanonicalizationMethod"`
 	SignatureMethod        SignatureMethodType        `xml:"http://www.w3.org/2000/09/xmldsig# SignatureMethod"`
 	Reference              []ReferenceType            `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
@@ -44,9 +44,9 @@ type SignatureMethod struct {
 
 type Reference struct {
 	XMLName      xml.Name
-	Id           string           `xml:"Id,attr,omitempty"`
-	URI          string           `xml:"URI,attr,omitempty"`
-	Type         string           `xml:"Type,attr,omitempty"`
+	Id           *string          `xml:"Id,attr,omitempty"`
+	URI          *string          `xml:"URI,attr,omitempty"`
+	Type         *string          `xml:"Type,attr,omitempty"`
 	Transforms   *TransformsType  `xml:"http://www.w3.org/2000/09/xmldsig# Transforms,omitempty"`
 	DigestMethod DigestMethodType `xml:"http://www.w3.org/2000/09/xmldsig# DigestMethod"`
 	DigestValue  DigestValueType  `xml:"http://www.w3.org/2000/09/xmldsig# DigestValue"`
@@ -75,7 +75,7 @@ type DigestValue struct {
 
 type KeyInfo struct {
 	XMLName         xml.Name
-	Id              string                 `xml:"Id,attr,omitempty"`
+	Id              *string                `xml:"Id,attr,omitempty"`
 	KeyName         []*string              `xml:"http://www.w3.org/2000/09/xmldsig# KeyName,omitempty"`
 	KeyValue        []*KeyValueType        `xml:"http://www.w3.org/2000/09/xmldsig# KeyValue,omitempty"`
 	RetrievalMethod []*RetrievalMethodType `xml:"http://www.w3.org/2000/09/xmldsig# RetrievalMethod,omitempty"`
@@ -104,7 +104,7 @@ type KeyValue struct {
 type RetrievalMethod struct {
 	XMLName    xml.Name
 	URI        string          `xml:"URI,attr"`
-	Type       string          `xml:"Type,attr,omitempty"`
+	Type       *string         `xml:"Type,attr,omitempty"`
 	Transforms *TransformsType `xml:"http://www.w3.org/2000/09/xmldsig# Transforms,omitempty"`
 }
 
@@ -130,27 +130,27 @@ type SPKIData struct {
 
 type Object struct {
 	XMLName  xml.Name
-	Id       string `xml:"Id,attr,omitempty"`
-	MimeType string `xml:"MimeType,attr,omitempty"`
-	Encoding string `xml:"Encoding,attr,omitempty"`
+	Id       *string `xml:"Id,attr,omitempty"`
+	MimeType *string `xml:"MimeType,attr,omitempty"`
+	Encoding *string `xml:"Encoding,attr,omitempty"`
 }
 
 type Manifest struct {
 	XMLName   xml.Name
-	Id        string          `xml:"Id,attr,omitempty"`
+	Id        *string         `xml:"Id,attr,omitempty"`
 	Reference []ReferenceType `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
 }
 
 type SignatureProperties struct {
 	XMLName           xml.Name
-	Id                string                  `xml:"Id,attr,omitempty"`
+	Id                *string                 `xml:"Id,attr,omitempty"`
 	SignatureProperty []SignaturePropertyType `xml:"http://www.w3.org/2000/09/xmldsig# SignatureProperty"`
 }
 
 type SignatureProperty struct {
 	XMLName xml.Name
-	Target  string `xml:"Target,attr"`
-	Id      string `xml:"Id,attr,omitempty"`
+	Target  string  `xml:"Target,attr"`
+	Id      *string `xml:"Id,attr,omitempty"`
 }
 
 type DSAKeyValue struct {
@@ -169,7 +169,7 @@ type RSAKeyValue struct {
 // XSD ComplexType declarations
 
 type SignatureType struct {
-	Id             string             `xml:"Id,attr,omitempty"`
+	Id             *string            `xml:"Id,attr,omitempty"`
 	SignedInfo     SignedInfoType     `xml:"http://www.w3.org/2000/09/xmldsig# SignedInfo"`
 	SignatureValue SignatureValueType `xml:"http://www.w3.org/2000/09/xmldsig# SignatureValue"`
 	KeyInfo        *KeyInfoType       `xml:"http://www.w3.org/2000/09/xmldsig# KeyInfo,omitempty"`
@@ -177,32 +177,32 @@ type SignatureType struct {
 }
 
 type SignatureValueType struct {
-	Value string `xml:",chardata"`
-	Id    string `xml:"Id,attr,omitempty"`
+	Value string  `xml:",chardata"`
+	Id    *string `xml:"Id,attr,omitempty"`
 }
 
 type SignedInfoType struct {
-	Id                     string                     `xml:"Id,attr,omitempty"`
+	Id                     *string                    `xml:"Id,attr,omitempty"`
 	CanonicalizationMethod CanonicalizationMethodType `xml:"http://www.w3.org/2000/09/xmldsig# CanonicalizationMethod"`
 	SignatureMethod        SignatureMethodType        `xml:"http://www.w3.org/2000/09/xmldsig# SignatureMethod"`
 	Reference              []ReferenceType            `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
 }
 
 type CanonicalizationMethodType struct {
-	Algorithm string `xml:"Algorithm,attr"`
-	Item      string `xml:",any"`
+	Algorithm string  `xml:"Algorithm,attr"`
+	Item      *string `xml:",any,omitempty"`
 }
 
 type SignatureMethodType struct {
 	Algorithm        string                `xml:"Algorithm,attr"`
 	HMACOutputLength *HMACOutputLengthType `xml:"http://www.w3.org/2000/09/xmldsig# HMACOutputLength,omitempty"`
-	Item             string                `xml:",any"`
+	Item             *string               `xml:",any,omitempty"`
 }
 
 type ReferenceType struct {
-	Id           string           `xml:"Id,attr,omitempty"`
-	URI          string           `xml:"URI,attr,omitempty"`
-	Type         string           `xml:"Type,attr,omitempty"`
+	Id           *string          `xml:"Id,attr,omitempty"`
+	URI          *string          `xml:"URI,attr,omitempty"`
+	Type         *string          `xml:"Type,attr,omitempty"`
 	Transforms   *TransformsType  `xml:"http://www.w3.org/2000/09/xmldsig# Transforms,omitempty"`
 	DigestMethod DigestMethodType `xml:"http://www.w3.org/2000/09/xmldsig# DigestMethod"`
 	DigestValue  DigestValueType  `xml:"http://www.w3.org/2000/09/xmldsig# DigestValue"`
@@ -218,12 +218,12 @@ type TransformType struct {
 }
 
 type DigestMethodType struct {
-	Algorithm string `xml:"Algorithm,attr"`
-	Item      string `xml:",any"`
+	Algorithm string  `xml:"Algorithm,attr"`
+	Item      *string `xml:",any,omitempty"`
 }
 
 type KeyInfoType struct {
-	Id              string                 `xml:"Id,attr,omitempty"`
+	Id              *string                `xml:"Id,attr,omitempty"`
 	KeyName         []*string              `xml:"http://www.w3.org/2000/09/xmldsig# KeyName,omitempty"`
 	KeyValue        []*KeyValueType        `xml:"http://www.w3.org/2000/09/xmldsig# KeyValue,omitempty"`
 	RetrievalMethod []*RetrievalMethodType `xml:"http://www.w3.org/2000/09/xmldsig# RetrievalMethod,omitempty"`
@@ -240,7 +240,7 @@ type KeyValueType struct {
 
 type RetrievalMethodType struct {
 	URI        string          `xml:"URI,attr"`
-	Type       string          `xml:"Type,attr,omitempty"`
+	Type       *string         `xml:"Type,attr,omitempty"`
 	Transforms *TransformsType `xml:"http://www.w3.org/2000/09/xmldsig# Transforms,omitempty"`
 }
 
@@ -263,30 +263,30 @@ type PGPDataType struct {
 }
 
 type SPKIDataType struct {
-	SPKISexp string `xml:"http://www.w3.org/2000/09/xmldsig# SPKISexp"`
-	Item     string `xml:",any"`
+	SPKISexp string  `xml:"http://www.w3.org/2000/09/xmldsig# SPKISexp"`
+	Item     *string `xml:",any,omitempty"`
 }
 
 type ObjectType struct {
-	Id       string `xml:"Id,attr,omitempty"`
-	MimeType string `xml:"MimeType,attr,omitempty"`
-	Encoding string `xml:"Encoding,attr,omitempty"`
-	Item     string `xml:",any"`
+	Id       *string `xml:"Id,attr,omitempty"`
+	MimeType *string `xml:"MimeType,attr,omitempty"`
+	Encoding *string `xml:"Encoding,attr,omitempty"`
+	Item     string  `xml:",any"`
 }
 
 type ManifestType struct {
-	Id        string          `xml:"Id,attr,omitempty"`
+	Id        *string         `xml:"Id,attr,omitempty"`
 	Reference []ReferenceType `xml:"http://www.w3.org/2000/09/xmldsig# Reference"`
 }
 
 type SignaturePropertiesType struct {
-	Id                string                  `xml:"Id,attr,omitempty"`
+	Id                *string                 `xml:"Id,attr,omitempty"`
 	SignatureProperty []SignaturePropertyType `xml:"http://www.w3.org/2000/09/xmldsig# SignatureProperty"`
 }
 
 type SignaturePropertyType struct {
-	Target string `xml:"Target,attr"`
-	Id     string `xml:"Id,attr,omitempty"`
+	Target string  `xml:"Target,attr"`
+	Id     *string `xml:"Id,attr,omitempty"`
 }
 
 type DSAKeyValueType struct {

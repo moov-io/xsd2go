@@ -5,7 +5,7 @@ type {{ .GoName }} struct {
         Value {{ .GoTypeName }} `xml:",chardata"`
     {{- end }}
     {{- range .Attributes }}
-        {{ .GoName }} {{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},{{ .Modifiers }}"`
+        {{ .GoName }} {{ .GoForeignModule }}{{ .GoType }} `xml:"{{ .XmlName }},{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`
     {{- end }}
     {{- range .Elements }}
         {{ .GoFieldName }} {{ if .Array }}[]{{ end }}{{ if eq .MinOccurs "0" }}*{{ end }}{{ .GoForeignModule }}{{ .GoTypeName }} `xml:"{{ .TargetNamespace }} {{ .XmlName }}{{ if eq .MinOccurs "0" }},omitempty{{ end }}"`

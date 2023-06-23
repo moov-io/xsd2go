@@ -66,14 +66,6 @@ func (a *Attribute) GoForeignModule() string {
 	return ""
 }
 
-func (a *Attribute) Modifiers() string {
-	res := "attr"
-	if a.optional() {
-		res += ",omitempty"
-	}
-	return res
-}
-
 func (a *Attribute) XmlName() string {
 	if a.Name == "" {
 		return a.Ref.Name()

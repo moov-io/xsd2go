@@ -10,8 +10,8 @@ import (
 
 type Myelement struct {
 	XMLName   xml.Name
-	Datatype  DatatypeEnumeration  `xml:"datatype,attr,omitempty"`
-	Operation OperationEnumeration `xml:"operation,attr,omitempty"`
+	Datatype  *DatatypeEnumeration  `xml:"datatype,attr,omitempty"`
+	Operation *OperationEnumeration `xml:"operation,attr,omitempty"`
 }
 
 // XSD ComplexType declarations
@@ -21,14 +21,14 @@ type StateRefType struct {
 }
 
 type MySimpleBaseType struct {
-	Value     string               `xml:",chardata"`
-	Datatype  DatatypeEnumeration  `xml:"datatype,attr,omitempty"`
-	Operation OperationEnumeration `xml:"operation,attr,omitempty"`
+	Value     string                `xml:",chardata"`
+	Datatype  *DatatypeEnumeration  `xml:"datatype,attr,omitempty"`
+	Operation *OperationEnumeration `xml:"operation,attr,omitempty"`
 }
 
 type MyElementType struct {
-	Datatype  DatatypeEnumeration  `xml:"datatype,attr,omitempty"`
-	Operation OperationEnumeration `xml:"operation,attr,omitempty"`
+	Datatype  *DatatypeEnumeration  `xml:"datatype,attr,omitempty"`
+	Operation *OperationEnumeration `xml:"operation,attr,omitempty"`
 }
 
 // XSD SimpleType declarations
