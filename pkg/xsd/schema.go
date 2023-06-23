@@ -11,32 +11,34 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
+const TemplateTypeInclude = ".incl"
+const TemplateTypeElement = ".elem"
+
 // Schema is the root XSD element
 type Schema struct {
-	XMLName           xml.Name            `xml:"http://www.w3.org/2001/XMLSchema schema"`
-	Xmlns             Xmlns               `xml:"-"`
-	TargetNamespace   string              `xml:"targetNamespace,attr"`
-	Includes          []Include           `xml:"include"`
-	Imports           []Import            `xml:"import"`
-	Elements          []Element           `xml:"element"`
-	Attributes        []Attribute         `xml:"attribute"`
-	AttributeGroups   []AttributeGroup    `xml:"attributeGroup"`
-	ComplexTypes      []ComplexType       `xml:"complexType"`
-	SimpleTypes       []SimpleType        `xml:"simpleType"`
-	importedModules   map[string]*Schema  `xml:"-"`
-	ModulesPath       string              `xml:"-"`
-	filePath          string              `xml:"-"`
-	inlinedElements   []Element           `xml:"-"`
-	NsPrefix          string              `xml:"-"`
-	TemplateOverrides map[string]Override `xml:"-"`
+	XMLName               xml.Name            `xml:"http://www.w3.org/2001/XMLSchema schema"`
+	Xmlns                 Xmlns               `xml:"-"`
+	TargetNamespace       string              `xml:"targetNamespace,attr"`
+	Includes              []Include           `xml:"include"`
+	Imports               []Import            `xml:"import"`
+	Elements              []Element           `xml:"element"`
+	Attributes            []Attribute         `xml:"attribute"`
+	AttributeGroups       []AttributeGroup    `xml:"attributeGroup"`
+	ComplexTypes          []ComplexType       `xml:"complexType"`
+	SimpleTypes           []SimpleType        `xml:"simpleType"`
+	importedModules       map[string]*Schema  `xml:"-"`
+	ModulesPath           string              `xml:"-"`
+	filePath              string              `xml:"-"`
+	inlinedElements       []Element           `xml:"-"`
+	goPackageNameOverride string              `xml:"-"`
+	NsPrefix              string              `xml:"-"`
+	TemplateOverrides     map[string]Override `xml:"-"`
 }
 type Override struct {
 	TemplateName string
 	TemplateUsed bool
 	IsIncl       bool
 	IsElem       bool
-	IsCompTyp    bool
-	TemplateType string
 }
 
 func parseSchema(f io.Reader) (*Schema, error) {
@@ -117,12 +119,40 @@ func (sch *Schema) findReferencedSchemaByPrefix(xmlnsPrefix string) *Schema {
 	return sch.findReferencedSchemaByXmlns(sch.xmlnsByPrefix(xmlnsPrefix))
 }
 
+func (sch *Schema) xmlnsPrefixByXmlns(xmlns string) string {
+	uri := sch.xmlnsPrefixByXmlnsInternal(xmlns)
+	if uri == "" {
+		panic("Internal error: Unknown xmlns: " + xmlns)
+	}
+	return uri
+}
+
 func (sch *Schema) xmlnsByPrefix(xmlnsPrefix string) string {
 	uri := sch.xmlnsByPrefixInternal(xmlnsPrefix)
 	if uri == "" {
 		panic("Internal error: Unknown xmlns prefix: " + xmlnsPrefix)
 	}
 	return uri
+}
+
+func (sch *Schema) xmlnsPrefixByXmlnsInternal(xmlns string) string {
+	switch xmlns {
+	case sch.TargetNamespace:
+		return ""
+	case "http://www.w3.org/XML/1998/namespace":
+		return "xml"
+	default:
+		prefix := sch.Xmlns.PrefixByUri(xmlns)
+		if prefix == "" {
+			for _, imported := range sch.importedModules {
+				prefix = imported.xmlnsPrefixByXmlnsInternal(xmlns)
+				if prefix != "" {
+					return prefix
+				}
+			}
+		}
+		return prefix
+	}
 }
 
 func (sch *Schema) xmlnsByPrefixInternal(xmlnsPrefix string) string {
@@ -248,6 +278,9 @@ func (sch *Schema) GetType(name string) Type {
 }
 
 func (sch *Schema) GoPackageName() string {
+	if sch.goPackageNameOverride != "" {
+		return sch.goPackageNameOverride
+	}
 	xmlnsPrefix := strings.TrimSuffix(filepath.Base(sch.filePath), ".xsd")
 	return strings.ReplaceAll(strings.ReplaceAll(xmlnsPrefix, "-", "_"), ".", "_")
 }
@@ -298,10 +331,10 @@ type Import struct {
 	ImportedSchema *Schema  `xml:"-"`
 }
 
-func (i *Import) load(ws *Workspace, templateOverrides map[string]Override, baseDir string) (err error) {
+func (i *Import) load(ws *Workspace, nsPrefix string, goPackage string, baseDir string) (err error) {
 	if i.SchemaLocation != "" {
 		i.ImportedSchema, err =
-			ws.loadXsd(filepath.Join(baseDir, i.SchemaLocation), templateOverrides, true)
+			ws.loadXsd(goPackage, nsPrefix, filepath.Join(baseDir, i.SchemaLocation), true)
 	}
 	return
 }
@@ -313,10 +346,10 @@ type Include struct {
 	IncludedSchema *Schema  `xml:"-"`
 }
 
-func (i *Include) load(ws *Workspace, templateOverrides map[string]Override, baseDir string) (err error) {
+func (i *Include) load(ws *Workspace, nsPrefix string, goPackage string, baseDir string) (err error) {
 	if i.SchemaLocation != "" {
 		i.IncludedSchema, err =
-			ws.loadXsd(filepath.Join(baseDir, i.SchemaLocation), templateOverrides, false)
+			ws.loadXsd(goPackage, nsPrefix, filepath.Join(baseDir, i.SchemaLocation), false)
 	}
 	return
 }

@@ -16,72 +16,81 @@ var tests = []struct {
 	xsdFile         string
 	outputDir       string
 	outputFile      string
+	goModule        string
 	goPackage       string
 	namespacePrefix string
 	expectedFiles   []string
 }{
 	{
 		xsdFile:         "complex.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "complex",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
+		goModule:        "user.com/private",
+		goPackage:       "simple_schema",
 		namespacePrefix: "complex",
 		expectedFiles:   []string{"complex.go.out"},
 	},
 	{
 		xsdFile:         "cpe-naming_2.3.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "cpe_naming_2_3",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "cpe-naming_2.3",
+		goModule:        "user.com/private",
+		goPackage:       "simple_schema",
+		namespacePrefix: "",
 		expectedFiles:   []string{"cpe-naming_2.3.go.out"},
 	},
 	{
 		xsdFile:         "restriction.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "restriction",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "restriction",
+		goModule:        "user.com/private",
+		goPackage:       "simple_schema",
+		namespacePrefix: "",
 		expectedFiles:   []string{"restriction.go.out"},
 	},
 	{
 		xsdFile:         "simple.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "simple",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "simple",
+		goModule:        "user.com/private",
+		goPackage:       "simple_schema",
+		namespacePrefix: "",
 		expectedFiles:   []string{"simple.go.out"},
 	},
 	{
 		xsdFile:         "simple-8859-1.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "simple_8859_1",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "simple-8859-1",
+		goModule:        "user.com/private",
+		goPackage:       "simple_schema",
+		namespacePrefix: "",
 		expectedFiles:   []string{"simple-8859-1.go.out"},
 	},
 	{
 		xsdFile:         "swid-2015-extensions-1.0.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "swid_2015_extensions_1_0",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "swid-2015-extensions-1.0",
+		goModule:        "user.com/private",
+		goPackage:       "swid_2015_extensions_1_0",
+		namespacePrefix: "",
 		expectedFiles:   []string{"swid-2015-extensions-1.0.go.out"},
 	},
 	{
 		xsdFile:         "xmldsig-core-schema.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "xmldsig_core_schema",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "xmldsig-core-schema",
+		goModule:        "user.com/private",
+		goPackage:       "xml_dsig",
+		namespacePrefix: "",
 		expectedFiles:   []string{"xmldsig-core-schema.go.out"},
 	},
 	{
 		xsdFile:         "incl.xsd",
-		outputDir:       "simple_schema",
+		outputDir:       "incl",
 		outputFile:      "models.go",
-		goPackage:       "user.com/private",
-		namespacePrefix: "incl",
+		goModule:        "user.com/private",
+		goPackage:       "incl",
+		namespacePrefix: "",
 		expectedFiles:   []string{"incl.go.out"},
 	},
 }
@@ -103,13 +112,14 @@ func TestSanity(t *testing.T) {
 				xsdFile,
 				outputDir,
 				tests[indx].outputFile,
+				tests[indx].goModule,
 				tests[indx].goPackage,
 				tests[indx].namespacePrefix,
 				"rtp",
 			)
 			require.NoError(t, err)
 
-			golangFiles, err := filepath.Glob(outputDir + "/*")
+			golangFiles, err := filepath.Glob(outputDir + "/*/*")
 			require.NoError(t, err)
 			assert.Equal(t, len(tests[indx].expectedFiles), len(golangFiles), "Expected to find %v generated files in %s but found %v", len(tests[indx].expectedFiles), outputDir, len(golangFiles))
 

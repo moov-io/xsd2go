@@ -15,7 +15,6 @@ type Type interface {
 	ContainsText() bool
 	IncludeTypeTemplate() bool
 	IncludeElementTemplate() bool
-	IncludeComplexTypeTemplate() bool
 	IncludeTemplateName() string
 	compile(*Schema, *Element)
 }
@@ -89,10 +88,6 @@ func (ct *ComplexType) IncludeTypeTemplate() bool {
 
 func (ct *ComplexType) IncludeElementTemplate() bool {
 	return ct.override.TemplateUsed && ct.override.IsElem
-}
-
-func (ct *ComplexType) IncludeComplexTypeTemplate() bool {
-	return ct.override.TemplateUsed && ct.override.IsCompTyp
 }
 
 func (ct *ComplexType) IncludeTemplateName() string {
@@ -199,10 +194,6 @@ func (st *SimpleType) IncludeElementTemplate() bool {
 	return st.override.TemplateUsed && st.override.IsElem
 }
 
-func (st *SimpleType) IncludeComplexTypeTemplate() bool {
-	return false
-}
-
 func (st *SimpleType) IncludeTemplateName() string {
 	return st.override.TemplateName
 }
@@ -273,10 +264,6 @@ func (st staticType) IncludeTypeTemplate() bool {
 }
 
 func (st staticType) IncludeElementTemplate() bool {
-	return false
-}
-
-func (st staticType) IncludeComplexTypeTemplate() bool {
 	return false
 }
 

@@ -7,28 +7,30 @@ import (
 )
 
 type Workspace struct {
-	Cache         map[string]*Schema
-	GoModulesPath string
+	Cache             map[string]*Schema
+	GoModulesPath     string
+	templateOverrides map[string]Override
 }
 
-func NewWorkspace(goModulesPath, xsdFile string, templates map[string]Override) (*Workspace, error) {
+func NewWorkspace(goModulesPath string, goPackage string, nsPrefix string, xsdFile string, templates map[string]Override) (*Workspace, error) {
 	ws := Workspace{
-		Cache:         map[string]*Schema{},
-		GoModulesPath: goModulesPath,
+		Cache:             map[string]*Schema{},
+		GoModulesPath:     goModulesPath,
+		templateOverrides: templates,
 	}
 	var err error
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = ws.loadXsd(xsdFile, templates, true)
+	_, err = ws.loadXsd(goPackage, nsPrefix, xsdFile, true)
 	if err != nil {
 		return nil, err
 	}
 	return &ws, ws.compile()
 }
 
-func (ws *Workspace) loadXsd(xsdPath string, templates map[string]Override, cache bool) (*Schema, error) {
+func (ws *Workspace) loadXsd(goPackage string, nsPrefix string, xsdPath string, cache bool) (*Schema, error) {
 	cached, found := ws.Cache[xsdPath]
 	if found {
 		return cached, nil
@@ -47,9 +49,11 @@ func (ws *Workspace) loadXsd(xsdPath string, templates map[string]Override, cach
 		return nil, err
 	}
 
+	schema.NsPrefix = nsPrefix
 	schema.ModulesPath = ws.GoModulesPath
 	schema.filePath = xsdPath
-	schema.TemplateOverrides = templates
+	schema.TemplateOverrides = ws.templateOverrides
+	schema.goPackageNameOverride = goPackage
 	// Won't cache included schemas - we need to append contents to the current schema.
 	if cache {
 		ws.Cache[xsdPath] = schema
@@ -59,7 +63,8 @@ func (ws *Workspace) loadXsd(xsdPath string, templates map[string]Override, cach
 
 	for idx := range schema.Includes {
 		si := schema.Includes[idx]
-		if err := si.load(ws, schema.TemplateOverrides, dir); err != nil {
+		includeNsPrefix := schema.xmlnsPrefixByXmlns(schema.Includes[idx].Namespace)
+		if err = si.load(ws, includeNsPrefix, goPackage, dir); err != nil {
 			return nil, err
 		}
 
@@ -77,7 +82,8 @@ func (ws *Workspace) loadXsd(xsdPath string, templates map[string]Override, cach
 	}
 
 	for idx := range schema.Imports {
-		if err := schema.Imports[idx].load(ws, schema.TemplateOverrides, dir); err != nil {
+		importNsPrefix := schema.xmlnsPrefixByXmlns(schema.Imports[idx].Namespace)
+		if err = schema.Imports[idx].load(ws, importNsPrefix, goPackage, dir); err != nil {
 			return nil, err
 		}
 	}

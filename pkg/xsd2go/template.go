@@ -28,31 +28,22 @@ func GenerateTypes(templateName string, schema *xsd.Schema, outputDir string, ou
 	}
 
 	t := template.New(templateName).Funcs(template.FuncMap{
-		// Allow any template ending in suffix ".incl" to be included inline. The main template will call this
-		// function at a specific point.
-		"InclType": func(tmplName string, data any) (string, error) {
-			tmplName = fmt.Sprintf("%s.incl", tmplName)
-			t2 := template.New(tmplName)
-			t2, tmplErr := parseTemplate(t2, tmplDir, tmplName)
-			if tmplErr != nil {
-				return "", tmplErr
-			}
-			var tmplBuf bytes.Buffer
-			tmplErr = t2.Execute(&tmplBuf, data)
-			return tmplBuf.String(), tmplErr
+		// Allow any template ending to be included inline. The main template will call this function at a specific point.
+		"InclCType": func(tmplName string, data *xsd.ComplexType) (string, error) {
+			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeInclude)
+			return includeTemplate(tmplName, tmplDir, data)
 		},
-		// Allow any template ending in suffix ".elem" to be included inline. The main template will call this
-		// function at a specific point.
+		"InclSType": func(tmplName string, data *xsd.SimpleType) (string, error) {
+			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeInclude)
+			return includeTemplate(tmplName, tmplDir, data)
+		},
+		"InclEType": func(tmplName string, data *xsd.Element) (string, error) {
+			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeInclude)
+			return includeTemplate(tmplName, tmplDir, data)
+		},
 		"InclElem": func(tmplName string, data *xsd.Element) (string, error) {
-			tmplName = fmt.Sprintf("%s.elem", tmplName)
-			t2 := template.New(tmplName)
-			t2, tmplErr := parseTemplate(t2, tmplDir, tmplName)
-			if tmplErr != nil {
-				return "", tmplErr
-			}
-			var tmplBuf bytes.Buffer
-			tmplErr = t2.Execute(&tmplBuf, data)
-			return tmplBuf.String(), tmplErr
+			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeElement)
+			return includeTemplate(tmplName, tmplDir, data)
 		},
 	})
 	t, err = parseTemplate(t, tmplDir, templateName)
@@ -83,6 +74,17 @@ func GenerateTypes(templateName string, schema *xsd.Schema, outputDir string, ou
 	return nil
 }
 
+func includeTemplate(tmplName string, tmplDir string, data any) (string, error) {
+	t2 := template.New(tmplName)
+	t2, tmplErr := parseTemplate(t2, tmplDir, tmplName)
+	if tmplErr != nil {
+		return "", tmplErr
+	}
+	var tmplBuf bytes.Buffer
+	tmplErr = t2.Execute(&tmplBuf, data)
+	return tmplBuf.String(), tmplErr
+}
+
 func GetAllTemplates(tmplDir string) (map[string]xsd.Override, error) {
 	dir, err := tmpl.Templates.ReadDir(tmplDir)
 	if err != nil {
@@ -91,7 +93,7 @@ func GetAllTemplates(tmplDir string) (map[string]xsd.Override, error) {
 
 	templates := make(map[string]xsd.Override)
 	for indx := range dir {
-		name, found := strings.CutSuffix(dir[indx].Name(), ".incl")
+		name, found := strings.CutSuffix(dir[indx].Name(), xsd.TemplateTypeInclude)
 		if found {
 			if _, ok := templates[name]; !ok {
 				templates[name] = xsd.Override{TemplateName: name}
@@ -100,7 +102,7 @@ func GetAllTemplates(tmplDir string) (map[string]xsd.Override, error) {
 			override.IsIncl = true
 			templates[name] = override
 		}
-		name, found = strings.CutSuffix(dir[indx].Name(), ".elem")
+		name, found = strings.CutSuffix(dir[indx].Name(), xsd.TemplateTypeElement)
 		if found {
 			if _, ok := templates[name]; !ok {
 				templates[name] = xsd.Override{TemplateName: name}

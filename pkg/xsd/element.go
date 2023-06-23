@@ -24,6 +24,7 @@ type Element struct {
 	SimpleType      *SimpleType  `xml:"simpleType"`
 	schema          *Schema      `xml:"-"`
 	typ             Type         `xml:"-"`
+	override        Override     `xml:"-"`
 }
 
 func (e *Element) Attributes() []Attribute {
@@ -160,6 +161,12 @@ func (e *Element) compile(s *Schema, parentElement *Element) {
 	if e.Ref == "" && e.Type == "" && !e.isPlainString() {
 		e.schema.registerInlinedElement(e, parentElement)
 	}
+
+	if tmpl, found := s.TemplateOverrides[e.Name]; found {
+		tmpl.TemplateUsed = true
+		e.override = tmpl
+		s.TemplateOverrides[e.Name] = tmpl
+	}
 }
 
 func (e *Element) prefixNameWithParent(parentElement *Element) {
@@ -170,6 +177,10 @@ func (e *Element) prefixNameWithParent(parentElement *Element) {
 	}
 }
 
+func (e *Element) IncludeTypeTemplate() bool {
+	return e.override.TemplateUsed && e.override.IsIncl
+}
+
 func (e *Element) IncludeElementTemplate() bool {
 	if e.typ != nil {
 		return e.typ.IncludeElementTemplate()
@@ -178,10 +189,10 @@ func (e *Element) IncludeElementTemplate() bool {
 }
 
 func (e *Element) IncludeTemplateName() string {
-	if e.typ != nil {
+	if e.IncludeElementTemplate() {
 		return e.typ.IncludeTemplateName()
 	}
-	return ""
+	return e.override.TemplateName
 }
 
 func (e *Element) TargetNamespace() string {

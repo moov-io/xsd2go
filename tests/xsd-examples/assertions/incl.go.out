@@ -16,29 +16,11 @@ type Myelement struct {
 	Amtccy  ActiveOrHistoricCurrencyAndAmount `xml:"https://simple.example.com/ amtccy"`
 }
 
-// MarshalXML is a custom marshaller that allows us to manipulate the XML tag in order to use the proper namespace prefix
-func (v Myelement) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	e.EncodeToken(xml.StartElement{Name: xml.Name{Local: start.Name.Local}})
-	e.EncodeElement(v.Id, xml.StartElement{Name: xml.Name{Local: "incl:id"}})
-	e.EncodeElement(v.Amtccy, xml.StartElement{Name: xml.Name{Local: "incl:amtccy"}})
-	e.EncodeToken(xml.EndElement{Name: xml.Name{Local: start.Name.Local}})
-	return nil
-}
-
 // XSD ComplexType declarations
 
 type MyElementType struct {
 	Id     rtp.ISODateTime                   `xml:"https://simple.example.com/ id"`
 	Amtccy ActiveOrHistoricCurrencyAndAmount `xml:"https://simple.example.com/ amtccy"`
-}
-
-// MarshalXML is a custom marshaller that allows us to manipulate the XML tag in order to use the proper namespace prefix
-func (v MyElementType) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	e.EncodeToken(xml.StartElement{Name: xml.Name{Local: start.Name.Local}})
-	e.EncodeElement(v.Id, xml.StartElement{Name: xml.Name{Local: "incl:id"}})
-	e.EncodeElement(v.Amtccy, xml.StartElement{Name: xml.Name{Local: "incl:amtccy"}})
-	e.EncodeToken(xml.EndElement{Name: xml.Name{Local: start.Name.Local}})
-	return nil
 }
 
 type ActiveOrHistoricCurrencyAndAmount struct {

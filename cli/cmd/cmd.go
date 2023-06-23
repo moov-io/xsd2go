@@ -26,8 +26,10 @@ var convert = cli.Command{
 	ArgsUsage: "--xsd-file='XSD-FILE' " +
 		"--output-dir='OUTPUT-DIR' " +
 		"--output-file='OUTPUT-FILE' " +
+		"--go-module='GO-MODULE' " +
 		"--go-package='GO-PACKAGE' " +
-		"--namespace-prefix='NAMESPACE-PREFIX' ",
+		"--namespace-prefix='NAMESPACE-PREFIX' " +
+		"--template-package='TEMPLATE-PACKAGE' ",
 	Before: func(c *cli.Context) error {
 		return nil
 	},
@@ -36,6 +38,7 @@ var convert = cli.Command{
 			c.String("xsd-file"),
 			c.String("output-dir"),
 			c.String("output-file"),
+			c.String("go-module"),
 			c.String("go-package"),
 			c.String("namespace-prefix"),
 			c.String("template-package"),
@@ -58,17 +61,22 @@ var convert = cli.Command{
 		},
 		cli.StringFlag{
 			Name:     "output-file",
-			Required: true,
+			Required: false,
 			Usage:    "Defines the file name to generate code to. Example: --output-file='sample.go'",
 		},
 		cli.StringFlag{
+			Name:     "go-module",
+			Required: false,
+			Usage:    "Defines the name of the Go Module to use as reference. Example: --go-module='user.com/package'",
+		},
+		cli.StringFlag{
 			Name:     "go-package",
-			Required: true,
+			Required: false,
 			Usage:    "Defines the name of the Go Package to generate to. Example: --go-package='sample'",
 		},
 		cli.StringFlag{
 			Name:     "namespace-prefix",
-			Required: true,
+			Required: false,
 			Usage:    "Defines the xmlns prefix to use for elements. Example: --namespace-prefix='s'",
 		},
 		cli.StringFlag{

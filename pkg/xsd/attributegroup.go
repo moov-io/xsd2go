@@ -80,10 +80,6 @@ func (att *AttributeGroup) IncludeElementTemplate() bool {
 	return false
 }
 
-func (att *AttributeGroup) IncludeComplexTypeTemplate() bool {
-	return false
-}
-
 func (att *AttributeGroup) IncludeTemplateName() string {
 	return ""
 }
