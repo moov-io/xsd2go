@@ -5,9 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/urfave/cli"
-
 	"github.com/gocomply/xsd2go/pkg/xsd2go"
+	"github.com/urfave/cli"
 )
 
 // Execute ...

@@ -55,9 +55,6 @@ import (
             {{- if eq .GoName "Document" }}
                 XMLName xml.Name
             {{- end }}
-            {{- if eq .GoName "DocumentTCH" }}
-                XMLName xml.Name
-            {{- end }}
             {{- if .ContainsText }}
                 Value {{ .GoTypeName }} `xml:",chardata"`
             {{- end }}
