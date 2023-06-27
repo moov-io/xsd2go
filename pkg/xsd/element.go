@@ -24,7 +24,6 @@ type Element struct {
 	SimpleType      *SimpleType  `xml:"simpleType"`
 	schema          *Schema      `xml:"-"`
 	typ             Type         `xml:"-"`
-	override        Override     `xml:"-"`
 }
 
 func (e *Element) Attributes() []Attribute {
@@ -57,10 +56,6 @@ func (e *Element) GoName() string {
 		return strcase.ToCamel(e.nameOverride)
 	}
 	return e.GoFieldName()
-}
-
-func (e *Element) Array() bool {
-	return e.isArray()
 }
 
 func (e *Element) GoMemLayout() string {
@@ -161,12 +156,6 @@ func (e *Element) compile(s *Schema, parentElement *Element) {
 	if e.Ref == "" && e.Type == "" && !e.isPlainString() {
 		e.schema.registerInlinedElement(e, parentElement)
 	}
-
-	if tmpl, found := s.TemplateOverrides[e.Name]; found {
-		tmpl.TemplateUsed = true
-		e.override = tmpl
-		s.TemplateOverrides[e.Name] = tmpl
-	}
 }
 
 func (e *Element) prefixNameWithParent(parentElement *Element) {
@@ -177,22 +166,8 @@ func (e *Element) prefixNameWithParent(parentElement *Element) {
 	}
 }
 
-func (e *Element) IncludeTypeTemplate() bool {
-	return e.override.TemplateUsed && e.override.IsIncl
-}
-
-func (e *Element) IncludeElementTemplate() bool {
-	if e.typ != nil {
-		return e.typ.IncludeElementTemplate()
-	}
-	return false
-}
-
-func (e *Element) IncludeTemplateName() string {
-	if e.IncludeElementTemplate() {
-		return e.typ.IncludeTemplateName()
-	}
-	return e.override.TemplateName
+func (e *Element) Array() bool {
+	return e.isArray()
 }
 
 func (e *Element) TargetNamespace() string {

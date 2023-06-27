@@ -38,11 +38,9 @@ func assertConvertsFine(t *testing.T, xsdPath string) []byte {
 	goModule := "user.com/private"
 
 	err = xsd2go.Convert(xsd2go.Params{
-		XsdPath:         xsdPath,
-		OutputDir:       outputDir,
-		GoModuleImport:  goModule,
-		TemplatePackage: "rtp",
-		TemplateName:    "element.tmpl",
+		XsdPath:        xsdPath,
+		OutputDir:      outputDir,
+		GoModuleImport: goModule,
 	})
 	require.NoError(t, err)
 

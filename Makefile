@@ -7,7 +7,9 @@ build:
 	go install golang.org/x/tools/cmd/goimports@latest
 	go build ./cli/gocomply_xsd2go
 
+.PHONY: vendor
 vendor:
+	rm -rf vendor
 	go mod tidy
 	go mod vendor
 	go mod verify

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"text/template"
 
+	"github.com/gocomply/xsd2go/pkg"
 	"github.com/gocomply/xsd2go/pkg/xsd"
 )
 
@@ -34,7 +35,7 @@ func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, tmpl
 	}
 
 	var buf bytes.Buffer
-	if err := t.ExecuteTemplate(&buf, templateName, schema); err != nil {
+	if err := t.Execute(&buf, schema); err != nil {
 		return fmt.Errorf("Could not execute template: %v", err)
 	}
 
@@ -57,84 +58,24 @@ func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, tmpl
 }
 
 func newTemplate(tmplDir string, templateName string) (*template.Template, error) {
-	t := template.New(templateName).Funcs(template.FuncMap{
-		// Allow any template ending to be included inline. The main template will call this function at a specific point.
-		"InclCType": func(tmplName string, data *xsd.ComplexType) (string, error) {
-			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeInclude)
-			return includeTemplate(tmplDir, tmplName, data)
-		},
-		"InclSType": func(tmplName string, data *xsd.SimpleType) (string, error) {
-			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeInclude)
-			return includeTemplate(tmplDir, tmplName, data)
-		},
-		"InclEType": func(tmplName string, data *xsd.Element) (string, error) {
-			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeInclude)
-			return includeTemplate(tmplDir, tmplName, data)
-		},
-		"InclElem": func(tmplName string, data *xsd.Element) (string, error) {
-			tmplName = fmt.Sprintf("%s%s", tmplName, xsd.TemplateTypeElement)
-			return includeTemplate(tmplDir, tmplName, data)
-		},
-	})
-	return parseTemplate(t, tmplDir, templateName)
-}
-
-func includeTemplate(tmplDir string, tmplName string, data any) (string, error) {
-	t2 := template.New(tmplName)
-	t2, tmplErr := parseTemplate(t2, tmplDir, tmplName)
-	if tmplErr != nil {
-		return "", tmplErr
-	}
-	var tmplBuf bytes.Buffer
-	tmplErr = t2.Execute(&tmplBuf, data)
-	return tmplBuf.String(), tmplErr
-}
-
-func parseTemplate(t *template.Template, tmplDir string, templateName string) (*template.Template, error) {
-	in, err := Templates.Open(tmplDir + "/" + templateName)
+	in, err := getFile(filepath.Join(tmplDir, templateName))
 	if err != nil {
-		return t, err
+		return nil, err
 	}
 	defer in.Close()
 
 	tempText, err := ioutil.ReadAll(in)
 	if err != nil {
-		return t, err
-	}
-	t, err = t.Parse(string(tempText))
-	if err != nil {
-		return t, err
-	}
-	return t, nil
-}
-
-func GetAllTemplates(tmplDir string) (map[string]xsd.Override, error) {
-	dir, err := Templates.ReadDir(tmplDir)
-	if err != nil {
 		return nil, err
 	}
 
-	templates := make(map[string]xsd.Override)
-	for indx := range dir {
-		name, found := strings.CutSuffix(dir[indx].Name(), xsd.TemplateTypeInclude)
-		if found {
-			if _, ok := templates[name]; !ok {
-				templates[name] = xsd.Override{TemplateName: name}
-			}
-			override := templates[name]
-			override.IsIncl = true
-			templates[name] = override
-		}
-		name, found = strings.CutSuffix(dir[indx].Name(), xsd.TemplateTypeElement)
-		if found {
-			if _, ok := templates[name]; !ok {
-				templates[name] = xsd.Override{TemplateName: name}
-			}
-			override := templates[name]
-			override.IsElem = true
-			templates[name] = override
-		}
-	}
+	return template.New(templateName).Funcs(template.FuncMap{}).Parse(string(tempText))
+}
 
-	return templates, nil
+func getFile(tmplPath string) (fs.File, error) {
+	file, err := pkg.Templates.Open(tmplPath)
+	if err == nil {
+		return file, err
+	}
+	return os.Open(tmplPath)
 }

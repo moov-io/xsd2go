@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Workspace struct {
-	Cache             map[string]*Schema
-	GoModulesPath     string
-	xmlnsOverrides    xmlnsOverrides
-	templateOverrides map[string]Override
+	Cache          map[string]*Schema
+	GoModulesPath  string
+	xmlnsOverrides xmlnsOverrides
 }
 
-func NewWorkspace(goModulesPath, xsdPath string, xmlnsOverrides []string, templates map[string]Override) (*Workspace, error) {
+func NewWorkspace(goModulesPath, xsdPath string, xmlnsOverrides []string) (*Workspace, error) {
 
 	ws := Workspace{
-		Cache:             map[string]*Schema{},
-		GoModulesPath:     goModulesPath,
-		templateOverrides: templates,
+		Cache:         map[string]*Schema{},
+		GoModulesPath: goModulesPath,
 	}
 	var err error
 	ws.xmlnsOverrides, err = ParseXmlnsOverrides(xmlnsOverrides)
@@ -62,7 +61,12 @@ func (ws *Workspace) loadXsd(xsdPath string, cache bool) (*Schema, error) {
 	schema.ModulesPath = ws.GoModulesPath
 	schema.filePath = xsdPath
 	schema.goPackageNameOverride = ws.xmlnsOverrides.override(schema.TargetNamespace)
-	schema.TemplateOverrides = ws.templateOverrides
+	if schema.goPackageNameOverride == "" {
+		schema.goPackageNameOverride = strings.TrimSuffix(filepath.Base(schema.filePath), ".xsd")
+	}
+	if schema.goPackageNameOverride != "" {
+		schema.goPackageNameOverride = strings.ReplaceAll(strings.ReplaceAll(schema.goPackageNameOverride, "-", "_"), ".", "_")
+	}
 	// Won't cache included schemas - we need to append contents to the current
 	// schema.
 	if cache {

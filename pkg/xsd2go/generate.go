@@ -34,13 +34,14 @@ func Convert(params Params) error {
 		params.TemplatePackage, params.TemplateName,
 		params.XmlnsOverrides,
 	)
-
-	templates, err := template.GetAllTemplates(params.TemplatePackage)
-	if err != nil {
-		return err
+	if params.TemplatePackage == "" {
+		params.TemplatePackage = "template"
+	}
+	if params.TemplateName == "" {
+		params.TemplateName = "types.tmpl"
 	}
 
-	ws, err := xsd.NewWorkspace(fmt.Sprintf("%s/%s", params.GoModuleImport, params.OutputDir), params.XsdPath, params.XmlnsOverrides, templates)
+	ws, err := xsd.NewWorkspace(fmt.Sprintf("%s/%s", params.GoModuleImport, params.OutputDir), params.XsdPath, params.XmlnsOverrides)
 	if err != nil {
 		return err
 	}

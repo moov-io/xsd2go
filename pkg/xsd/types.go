@@ -13,9 +13,6 @@ type Type interface {
 	Attributes() []Attribute
 	Elements() []Element
 	ContainsText() bool
-	IncludeTypeTemplate() bool
-	IncludeElementTemplate() bool
-	IncludeTemplateName() string
 	compile(*Schema, *Element)
 }
 
@@ -56,7 +53,6 @@ type ComplexType struct {
 	ComplexContent   *ComplexContent `xml:"complexContent"`
 	Choice           *Choice         `xml:"choice"`
 	content          GenericContent  `xml:"-"`
-	override         Override        `xml:"-"`
 }
 
 func (ct *ComplexType) Attributes() []Attribute {
@@ -77,11 +73,11 @@ func (ct *ComplexType) HasXmlNameAttribute() bool {
 
 func (ct *ComplexType) Elements() []Element {
 	if ct.Sequence != nil {
-		return ct.Sequence.Elements()
+		return setXmlNameAnyForSingleElements(ct.Sequence.Elements())
 	} else if ct.SequenceAll != nil {
-		return ct.SequenceAll.Elements()
+		return setXmlNameAnyForSingleElements(ct.SequenceAll.Elements())
 	} else if ct.content != nil {
-		return ct.content.Elements()
+		return setXmlNameAnyForSingleElements(ct.content.Elements())
 	} else if ct.Choice != nil {
 		return ct.Choice.Elements()
 	}
@@ -93,9 +89,6 @@ func (ct *ComplexType) GoName() string {
 }
 
 func (ct *ComplexType) GoTypeName() string {
-	if ct.SimpleContent != nil && ct.SimpleContent.Extension != nil && ct.SimpleContent.Extension.ContainsText() {
-		return ct.SimpleContent.Extension.typ.GoName()
-	}
 	return ct.GoName()
 }
 
@@ -105,18 +98,6 @@ func (ct *ComplexType) ContainsText() bool {
 
 func (ct *ComplexType) Schema() *Schema {
 	return ct.schema
-}
-
-func (ct *ComplexType) IncludeTypeTemplate() bool {
-	return ct.override.TemplateUsed && ct.override.IsIncl
-}
-
-func (ct *ComplexType) IncludeElementTemplate() bool {
-	return ct.override.TemplateUsed && ct.override.IsElem
-}
-
-func (ct *ComplexType) IncludeTemplateName() string {
-	return ct.override.TemplateName
 }
 
 func (ct *ComplexType) compile(sch *Schema, parentElement *Element) {
@@ -180,12 +161,6 @@ func (ct *ComplexType) compile(sch *Schema, parentElement *Element) {
 		}
 		ct.Choice.compile(sch, parentElement)
 	}
-
-	if tmpl, found := sch.TemplateOverrides[ct.GoName()]; found {
-		tmpl.TemplateUsed = true
-		ct.override = tmpl
-		sch.TemplateOverrides[ct.GoName()] = tmpl
-	}
 }
 
 type SimpleType struct {
@@ -193,7 +168,6 @@ type SimpleType struct {
 	Name        string       `xml:"name,attr"`
 	Restriction *Restriction `xml:"restriction"`
 	schema      *Schema      `xml:"-"`
-	override    Override     `xml:"-"`
 }
 
 func (st *SimpleType) GoName() string {
@@ -211,18 +185,6 @@ func (st *SimpleType) Schema() *Schema {
 	return st.schema
 }
 
-func (st *SimpleType) IncludeTypeTemplate() bool {
-	return st.override.TemplateUsed && st.override.IsIncl
-}
-
-func (st *SimpleType) IncludeElementTemplate() bool {
-	return st.override.TemplateUsed && st.override.IsElem
-}
-
-func (st *SimpleType) IncludeTemplateName() string {
-	return st.override.TemplateName
-}
-
 func (st *SimpleType) compile(sch *Schema, parentElement *Element) {
 	if st.schema == nil {
 		st.schema = sch
@@ -230,12 +192,6 @@ func (st *SimpleType) compile(sch *Schema, parentElement *Element) {
 
 	if st.Restriction != nil {
 		st.Restriction.compile(sch, parentElement)
-	}
-
-	if tmpl, found := sch.TemplateOverrides[st.GoName()]; found {
-		tmpl.TemplateUsed = true
-		st.override = tmpl
-		sch.TemplateOverrides[st.GoName()] = tmpl
 	}
 }
 
@@ -282,18 +238,6 @@ func (st staticType) Schema() *Schema {
 
 func (staticType) ContainsText() bool {
 	return true
-}
-
-func (st staticType) IncludeTypeTemplate() bool {
-	return false
-}
-
-func (st staticType) IncludeElementTemplate() bool {
-	return false
-}
-
-func (st staticType) IncludeTemplateName() string {
-	return ""
 }
 
 func (st staticType) compile(*Schema, *Element) {

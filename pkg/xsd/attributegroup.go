@@ -71,15 +71,3 @@ func (att *AttributeGroup) Elements() []Element {
 func (att *AttributeGroup) ContainsText() bool {
 	return true
 }
-
-func (att *AttributeGroup) IncludeTypeTemplate() bool {
-	return false
-}
-
-func (att *AttributeGroup) IncludeElementTemplate() bool {
-	return false
-}
-
-func (att *AttributeGroup) IncludeTemplateName() string {
-	return ""
-}
