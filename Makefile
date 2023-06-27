@@ -1,23 +1,26 @@
-GO=GO111MODULE=on go
-GOBUILD=$(GO) build
+USERID := $(shell id -u $$USER)
+GROUPID:= $(shell id -g $$USER)
 
-# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
-ifeq (,$(shell go env GOBIN))
-GOBIN=$(shell go env GOPATH)/bin
-else
-GOBIN=$(shell go env GOBIN)
-endif
-
-all: vendor build test
+all: vendor build check test
 
 build:
 	go install golang.org/x/tools/cmd/goimports@latest
-	$(GOBUILD) ./cli/gocomply_xsd2go
+	go build ./cli/gocomply_xsd2go
 
 vendor:
-	$(GO) mod tidy
-	$(GO) mod vendor
-	$(GO) mod verify
+	go mod tidy
+	go mod vendor
+	go mod verify
 
 test:
 	go test -v github.com/gocomply/xsd2go/... -count=1 -p 1 -parallel 1
+
+.PHONY: check
+check:
+ifeq ($(OS),Windows_NT)
+	@echo "Skipping checks on Windows, currently unsupported."
+else
+	@wget -O lint-project.sh https://raw.githubusercontent.com/moov-io/infra/master/go/lint-project.sh
+	@chmod +x ./lint-project.sh
+	# COVER_THRESHOLD=60.0 ./lint-project.sh
+endif
