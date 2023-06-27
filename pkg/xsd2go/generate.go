@@ -2,30 +2,45 @@ package xsd2go
 
 import (
 	"fmt"
-	"path/filepath"
 
+	"github.com/gocomply/xsd2go/pkg/template"
 	"github.com/gocomply/xsd2go/pkg/xsd"
 )
 
-func Convert(xsdFile string, outputDir string, outputFile string, goModulesPath string, goPackage string, nsPrefix string, tmplDir string) error {
-	fmt.Printf("Processing '%s'\n", xsdFile)
+type Params struct {
+	XsdPath         string
+	OutputDir       string
+	OutputFile      string
+	GoModuleImport  string
+	TemplatePackage string
+	TemplateName    string
+	XmlnsOverrides  []string
+}
+
+func Convert(params Params) error {
+	fmt.Printf("Processing '%s'\n", params.XsdPath)
 	fmt.Printf("Cmd: gocomply_xsd2go convert "+
 		"--xsd-file=%s "+
 		"--output-dir=%s "+
 		"--output-file=%s "+
-		"--go-module=%s "+
-		"--go-package=%s "+
-		"--namespace-prefix=%s "+
-		"--template-package=%s\n",
-		xsdFile, outputDir, outputFile, goModulesPath, goPackage, nsPrefix, tmplDir,
+		"--go-module-import=%s "+
+		"--template-package=%s"+
+		"--template-name=%s"+
+		"--xmlns-override=%s"+
+		"\n",
+		params.XsdPath,
+		params.OutputDir, params.OutputFile,
+		params.GoModuleImport,
+		params.TemplatePackage, params.TemplateName,
+		params.XmlnsOverrides,
 	)
 
-	templates, err := GetAllTemplates(tmplDir)
+	templates, err := template.GetAllTemplates(params.TemplatePackage)
 	if err != nil {
 		return err
 	}
 
-	ws, err := xsd.NewWorkspace(goModulesPath, goPackage, nsPrefix, xsdFile, templates)
+	ws, err := xsd.NewWorkspace(fmt.Sprintf("%s/%s", params.GoModuleImport, params.OutputDir), params.XsdPath, params.XmlnsOverrides, templates)
 	if err != nil {
 		return err
 	}
@@ -35,13 +50,12 @@ func Convert(xsdFile string, outputDir string, outputFile string, goModulesPath 
 			continue
 		}
 
-		var schemaOutputDir = filepath.Join(outputDir, sch.GoPackageName())
-		var schemaOutputFile = outputFile
+		var schemaOutputFile = params.OutputFile
 		if schemaOutputFile == "" {
 			schemaOutputFile = fmt.Sprintf("%s.go", sch.GoPackageName())
 		}
 
-		if err = GenerateTypes("element.tmpl", sch, schemaOutputDir, schemaOutputFile, tmplDir); err != nil {
+		if err := template.GenerateTypes(sch, params.OutputDir, schemaOutputFile, params.TemplatePackage, params.TemplateName); err != nil {
 			return err
 		}
 	}

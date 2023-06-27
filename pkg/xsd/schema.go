@@ -31,7 +31,6 @@ type Schema struct {
 	filePath              string              `xml:"-"`
 	inlinedElements       []Element           `xml:"-"`
 	goPackageNameOverride string              `xml:"-"`
-	NsPrefix              string              `xml:"-"`
 	TemplateOverrides     map[string]Override `xml:"-"`
 }
 type Override struct {
@@ -119,40 +118,12 @@ func (sch *Schema) findReferencedSchemaByPrefix(xmlnsPrefix string) *Schema {
 	return sch.findReferencedSchemaByXmlns(sch.xmlnsByPrefix(xmlnsPrefix))
 }
 
-func (sch *Schema) xmlnsPrefixByXmlns(xmlns string) string {
-	uri := sch.xmlnsPrefixByXmlnsInternal(xmlns)
-	if uri == "" {
-		panic("Internal error: Unknown xmlns: " + xmlns)
-	}
-	return uri
-}
-
 func (sch *Schema) xmlnsByPrefix(xmlnsPrefix string) string {
 	uri := sch.xmlnsByPrefixInternal(xmlnsPrefix)
 	if uri == "" {
 		panic("Internal error: Unknown xmlns prefix: " + xmlnsPrefix)
 	}
 	return uri
-}
-
-func (sch *Schema) xmlnsPrefixByXmlnsInternal(xmlns string) string {
-	switch xmlns {
-	case sch.TargetNamespace:
-		return ""
-	case "http://www.w3.org/XML/1998/namespace":
-		return "xml"
-	default:
-		prefix := sch.Xmlns.PrefixByUri(xmlns)
-		if prefix == "" {
-			for _, imported := range sch.importedModules {
-				prefix = imported.xmlnsPrefixByXmlnsInternal(xmlns)
-				if prefix != "" {
-					return prefix
-				}
-			}
-		}
-		return prefix
-	}
 }
 
 func (sch *Schema) xmlnsByPrefixInternal(xmlnsPrefix string) string {
@@ -281,8 +252,8 @@ func (sch *Schema) GoPackageName() string {
 	if sch.goPackageNameOverride != "" {
 		return sch.goPackageNameOverride
 	}
-	xmlnsPrefix := strings.TrimSuffix(filepath.Base(sch.filePath), ".xsd")
-	return strings.ReplaceAll(strings.ReplaceAll(xmlnsPrefix, "-", "_"), ".", "_")
+	packageName := strings.TrimSuffix(filepath.Base(sch.filePath), ".xsd")
+	return strings.ReplaceAll(strings.ReplaceAll(packageName, "-", "_"), ".", "_")
 }
 
 func (sch *Schema) GoImportsNeeded() []string {
@@ -324,6 +295,10 @@ func (sch *Schema) isElementInlined(el *Element) bool {
 	return !found
 }
 
+func (sch *Schema) NsPrefix() string {
+	return sch.Xmlns.PrefixByUri(sch.TargetNamespace)
+}
+
 type Import struct {
 	XMLName        xml.Name `xml:"http://www.w3.org/2001/XMLSchema import"`
 	Namespace      string   `xml:"namespace,attr"`
@@ -331,10 +306,10 @@ type Import struct {
 	ImportedSchema *Schema  `xml:"-"`
 }
 
-func (i *Import) load(ws *Workspace, nsPrefix string, goPackage string, baseDir string) (err error) {
+func (i *Import) load(ws *Workspace, baseDir string) (err error) {
 	if i.SchemaLocation != "" {
 		i.ImportedSchema, err =
-			ws.loadXsd(goPackage, nsPrefix, filepath.Join(baseDir, i.SchemaLocation), true)
+			ws.loadXsd(filepath.Join(baseDir, i.SchemaLocation), true)
 	}
 	return
 }
@@ -346,10 +321,10 @@ type Include struct {
 	IncludedSchema *Schema  `xml:"-"`
 }
 
-func (i *Include) load(ws *Workspace, nsPrefix string, goPackage string, baseDir string) (err error) {
+func (i *Include) load(ws *Workspace, baseDir string) (err error) {
 	if i.SchemaLocation != "" {
 		i.IncludedSchema, err =
-			ws.loadXsd(goPackage, nsPrefix, filepath.Join(baseDir, i.SchemaLocation), false)
+			ws.loadXsd(filepath.Join(baseDir, i.SchemaLocation), false)
 	}
 	return
 }

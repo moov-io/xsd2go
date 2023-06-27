@@ -200,5 +200,5 @@ func (e *Element) TargetNamespace() string {
 }
 
 func (e *Element) NsPrefix() string {
-	return e.schema.NsPrefix
+	return e.schema.NsPrefix()
 }

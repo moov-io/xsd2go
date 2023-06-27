@@ -11,6 +11,7 @@ endif
 all: vendor build test
 
 build:
+	go install golang.org/x/tools/cmd/goimports@latest
 	$(GOBUILD) ./cli/gocomply_xsd2go
 
 vendor:

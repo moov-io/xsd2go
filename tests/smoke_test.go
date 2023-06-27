@@ -13,113 +13,95 @@ import (
 )
 
 var tests = []struct {
-	xsdFile         string
-	outputDir       string
-	outputFile      string
-	goModule        string
-	goPackage       string
-	namespacePrefix string
-	expectedFiles   []string
+	xsdFile           string
+	outputFile        string
+	goModuleImport    string
+	xmlnsOverrides    []string
+	expectedOutputDir string
+	expectedFiles     []string
 }{
 	{
-		xsdFile:         "complex.xsd",
-		outputDir:       "complex",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "simple_schema",
-		namespacePrefix: "complex",
-		expectedFiles:   []string{"complex.go.out"},
+		xsdFile:           "complex.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "complex",
+		expectedFiles:     []string{"complex.xsd.out"},
 	},
 	{
-		xsdFile:         "cpe-naming_2.3.xsd",
-		outputDir:       "cpe_naming_2_3",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "simple_schema",
-		namespacePrefix: "",
-		expectedFiles:   []string{"cpe-naming_2.3.go.out"},
+		xsdFile:           "cpe-naming_2.3.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "cpe_naming_2_3",
+		expectedFiles:     []string{"cpe-naming_2.3.xsd.out"},
 	},
 	{
-		xsdFile:         "restriction.xsd",
-		outputDir:       "restriction",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "simple_schema",
-		namespacePrefix: "",
-		expectedFiles:   []string{"restriction.go.out"},
+		xsdFile:           "restriction.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "restriction",
+		expectedFiles:     []string{"restriction.xsd.out"},
 	},
 	{
-		xsdFile:         "simple.xsd",
-		outputDir:       "simple",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "simple_schema",
-		namespacePrefix: "",
-		expectedFiles:   []string{"simple.go.out"},
+		xsdFile:           "simple.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "simple",
+		expectedFiles:     []string{"simple.xsd.out"},
 	},
 	{
-		xsdFile:         "simple-8859-1.xsd",
-		outputDir:       "simple_8859_1",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "simple_schema",
-		namespacePrefix: "",
-		expectedFiles:   []string{"simple-8859-1.go.out"},
+		xsdFile:           "simple-8859-1.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "simple_8859_1",
+		expectedFiles:     []string{"simple-8859-1.xsd.out"},
 	},
 	{
-		xsdFile:         "swid-2015-extensions-1.0.xsd",
-		outputDir:       "swid_2015_extensions_1_0",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "swid_2015_extensions_1_0",
-		namespacePrefix: "",
-		expectedFiles:   []string{"swid-2015-extensions-1.0.go.out"},
+		xsdFile:           "swid-2015-extensions-1.0.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "swid_2015_extensions_1_0",
+		expectedFiles:     []string{"swid-2015-extensions-1.0.xsd.out"},
 	},
 	{
-		xsdFile:         "xmldsig-core-schema.xsd",
-		outputDir:       "xmldsig_core_schema",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "xml_dsig",
-		namespacePrefix: "",
-		expectedFiles:   []string{"xmldsig-core-schema.go.out"},
+		xsdFile:           "xmldsig-core-schema.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "xmldsig_core_schema",
+		expectedFiles:     []string{"xmldsig-core-schema.xsd.out"},
 	},
 	{
-		xsdFile:         "incl.xsd",
-		outputDir:       "incl",
-		outputFile:      "models.go",
-		goModule:        "user.com/private",
-		goPackage:       "incl",
-		namespacePrefix: "",
-		expectedFiles:   []string{"incl.go.out"},
+		xsdFile:           "incl.xsd",
+		outputFile:        "models.go",
+		goModuleImport:    "user.com/private",
+		expectedOutputDir: "incl",
+		expectedFiles:     []string{"incl.xsd.out"},
 	},
 }
 
 func TestSanity(t *testing.T) {
-	dname, err := os.MkdirTemp("", "xsd2go_tests_")
-	assert.Nil(t, err)
+	var dname = "gen"
 	defer os.RemoveAll(dname)
 
-	xsdPath := "xsd-examples/xsd/"
-	expectedPath := "xsd-examples/assertions"
+	xsdPath := "xsd-examples/valid/"
+	expectedPath := "xsd-examples/valid"
 
 	for indx := range tests {
 		t.Run(tests[indx].xsdFile, func(t *testing.T) {
-			outputDir := path.Join(dname, tests[indx].outputDir)
 			xsdFile := path.Join(xsdPath, tests[indx].xsdFile)
 
-			err = xsd2go.Convert(
-				xsdFile,
-				outputDir,
-				tests[indx].outputFile,
-				tests[indx].goModule,
-				tests[indx].goPackage,
-				tests[indx].namespacePrefix,
-				"rtp",
-			)
+			err := xsd2go.Convert(xsd2go.Params{
+				XsdPath:         xsdFile,
+				OutputDir:       dname,
+				OutputFile:      tests[indx].outputFile,
+				GoModuleImport:  tests[indx].goModuleImport,
+				TemplatePackage: "rtp",
+				TemplateName:    "element.tmpl",
+				XmlnsOverrides:  tests[indx].xmlnsOverrides,
+			})
 			require.NoError(t, err)
 
-			golangFiles, err := filepath.Glob(outputDir + "/*/*")
+			outputDir := path.Join(dname, tests[indx].expectedOutputDir)
+			golangFiles, err := filepath.Glob(outputDir + "/*")
 			require.NoError(t, err)
 			assert.Equal(t, len(tests[indx].expectedFiles), len(golangFiles), "Expected to find %v generated files in %s but found %v", len(tests[indx].expectedFiles), outputDir, len(golangFiles))
 

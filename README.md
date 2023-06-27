@@ -6,9 +6,9 @@ Run this command with variable names `xsdFile`, `name`, `nsPrefix`, and `tmpl`:
 ```
 gocomply_xsd2go convert \
    --xsd-file=${xsdFile} \
+   --go-module-import=${module} \
    --output-dir=gen/${name} \
    --output-file=${name}.go \
-   --go-package=${name} \
-   --namespace-prefix=${nsPrefix} \
-   --template-package=${tmpl}
-```
+   --template-package=${tmpl} \
+   --template-name=${name}.tmpl \
+   --xmlns-override='my.namespace=your.namespace'

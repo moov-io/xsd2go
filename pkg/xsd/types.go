@@ -28,6 +28,22 @@ func injectSchemaIntoAttributes(schema *Schema, intermAttributes []Attribute) []
 	return attributesWithProperScema
 }
 
+func setXmlNameAnyForSingleElements(elements []Element) []Element {
+	if len(elements) == 1 {
+		result := make([]Element, 1)
+		element := elements[0]
+		element.XmlNameOverride = ",any"
+		result[0] = element
+		return result
+	} else {
+		for idx := range elements {
+			element := &elements[idx]
+			element.XmlNameOverride = ""
+		}
+	}
+	return elements
+}
+
 type ComplexType struct {
 	XMLName          xml.Name        `xml:"http://www.w3.org/2001/XMLSchema complexType"`
 	Name             string          `xml:"name,attr"`
@@ -48,6 +64,15 @@ func (ct *ComplexType) Attributes() []Attribute {
 		return ct.content.Attributes()
 	}
 	return ct.AttributesDirect
+}
+
+func (ct *ComplexType) HasXmlNameAttribute() bool {
+	for _, attribute := range ct.Attributes() {
+		if attribute.GoName() == "XMLName" {
+			return true
+		}
+	}
+	return false
 }
 
 func (ct *ComplexType) Elements() []Element {

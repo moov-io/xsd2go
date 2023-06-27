@@ -9,28 +9,31 @@ import (
 type Workspace struct {
 	Cache             map[string]*Schema
 	GoModulesPath     string
+	xmlnsOverrides    xmlnsOverrides
 	templateOverrides map[string]Override
 }
 
-func NewWorkspace(goModulesPath string, goPackage string, nsPrefix string, xsdFile string, templates map[string]Override) (*Workspace, error) {
+func NewWorkspace(goModulesPath, xsdPath string, xmlnsOverrides []string, templates map[string]Override) (*Workspace, error) {
+
 	ws := Workspace{
 		Cache:             map[string]*Schema{},
 		GoModulesPath:     goModulesPath,
 		templateOverrides: templates,
 	}
 	var err error
+	ws.xmlnsOverrides, err = ParseXmlnsOverrides(xmlnsOverrides)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = ws.loadXsd(goPackage, nsPrefix, xsdFile, true)
+	_, err = ws.loadXsd(xsdPath, true)
 	if err != nil {
 		return nil, err
 	}
 	return &ws, ws.compile()
 }
 
-func (ws *Workspace) loadXsd(goPackage string, nsPrefix string, xsdPath string, cache bool) (*Schema, error) {
+func (ws *Workspace) loadXsd(xsdPath string, cache bool) (*Schema, error) {
 	cached, found := ws.Cache[xsdPath]
 	if found {
 		return cached, nil
@@ -39,22 +42,29 @@ func (ws *Workspace) loadXsd(goPackage string, nsPrefix string, xsdPath string, 
 
 	xsdPathClean := filepath.Clean(xsdPath)
 	f, err := os.Open(xsdPathClean)
-	defer f.Close()
 	if err != nil {
 		return nil, err
 	}
 
 	schema, err := parseSchema(f)
 	if err != nil {
+		err2 := f.Close()
+		if err2 != nil {
+			fmt.Fprintf(os.Stderr, "Error while closing file %s, %v", xsdPathClean, err2)
+		}
+		return nil, err
+	}
+	err = f.Close()
+	if err != nil {
 		return nil, err
 	}
 
-	schema.NsPrefix = nsPrefix
 	schema.ModulesPath = ws.GoModulesPath
 	schema.filePath = xsdPath
+	schema.goPackageNameOverride = ws.xmlnsOverrides.override(schema.TargetNamespace)
 	schema.TemplateOverrides = ws.templateOverrides
-	schema.goPackageNameOverride = goPackage
-	// Won't cache included schemas - we need to append contents to the current schema.
+	// Won't cache included schemas - we need to append contents to the current
+	// schema.
 	if cache {
 		ws.Cache[xsdPath] = schema
 	}
@@ -63,8 +73,7 @@ func (ws *Workspace) loadXsd(goPackage string, nsPrefix string, xsdPath string, 
 
 	for idx := range schema.Includes {
 		si := schema.Includes[idx]
-		includeNsPrefix := schema.xmlnsPrefixByXmlns(schema.Includes[idx].Namespace)
-		if err = si.load(ws, includeNsPrefix, goPackage, dir); err != nil {
+		if err := si.load(ws, dir); err != nil {
 			return nil, err
 		}
 
@@ -82,10 +91,11 @@ func (ws *Workspace) loadXsd(goPackage string, nsPrefix string, xsdPath string, 
 	}
 
 	for idx := range schema.Imports {
-		importNsPrefix := schema.xmlnsPrefixByXmlns(schema.Imports[idx].Namespace)
-		if err = schema.Imports[idx].load(ws, importNsPrefix, goPackage, dir); err != nil {
+		if err := schema.Imports[idx].load(ws, dir); err != nil {
 			return nil, err
 		}
+		// Copy the Xmlns with all of the namespace prefixes
+		schema.Imports[idx].ImportedSchema.Xmlns = schema.Xmlns
 	}
 	schema.compile()
 	return schema, nil
@@ -98,7 +108,7 @@ func (ws *Workspace) compile() error {
 		goPackageName := schema.GoPackageName()
 		prevXmlns, ok := uniqPkgNames[goPackageName]
 		if ok {
-			return fmt.Errorf("Malformed workspace. Multiple XSD files refer to itself with xmlns shorthand: '%s':\n - %s\n - %s\nWhile this is xsd in XSD it is impractical for golang code generation.\nConsider providing --xmlns-override=%s=mygopackage", goPackageName, prevXmlns, schema.TargetNamespace, schema.TargetNamespace)
+			return fmt.Errorf("Malformed workspace. Multiple XSD files refer to itself with xmlns shorthand: '%s':\n - %s\n - %s\nWhile this is valid in XSD it is impractical for golang code generation.\nConsider providing --xmlns-override=%s=mygopackage", goPackageName, prevXmlns, schema.TargetNamespace, schema.TargetNamespace)
 		}
 		uniqPkgNames[goPackageName] = schema.TargetNamespace
 	}
