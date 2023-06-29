@@ -1,21 +1,38 @@
-USERID := $(shell id -u $$USER)
-GROUPID:= $(shell id -g $$USER)
+GO=GO111MODULE=on go
+GOBUILD=$(GO) build
+
+# Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
+ifeq (,$(shell go env GOBIN))
+GOBIN=$(shell go env GOPATH)/bin
+else
+GOBIN=$(shell go env GOBIN)
+endif
 
 all: vendor build check test
 
 build:
-	go install golang.org/x/tools/cmd/goimports@latest
-	go build ./cli/moovio_xsd2go
+	$(GO) install golang.org/x/tools/cmd/goimports@latest
+	$(GOBUILD) ./cli/moovio_xsd2go
+
+.PHONY: pkger vendor
+pkger:
+ifeq ("$(wildcard $(GOBIN)/pkger)","")
+	go get -u -v github.com/markbates/pkger/cmd/pkger
+endif
+
+ci-update-bundled-deps: pkger
+	$(GOBIN)/pkger -o pkg/template
+	go fmt ./pkg/template
 
 .PHONY: vendor
 vendor:
 	rm -rf vendor
-	go mod tidy
-	go mod vendor
-	go mod verify
+	$(GO) mod tidy
+	$(GO) mod vendor
+	$(GO) mod verify
 
 test:
-	go test -v github.com/moov-io/xsd2go/... -count=1 -p 1 -parallel 1
+	$(GO) test -v github.com/moov-io/xsd2go/... -count=1 -p 1 -parallel 1
 
 .PHONY: check
 check:

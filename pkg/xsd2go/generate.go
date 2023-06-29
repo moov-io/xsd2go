@@ -7,41 +7,31 @@ import (
 	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
-type Params struct {
-	XsdPath         string
-	OutputDir       string
-	OutputFile      string
-	GoModuleImport  string
-	TemplatePackage string
-	TemplateName    string
-	XmlnsOverrides  []string
-}
-
-func Convert(params Params) error {
-	fmt.Printf("Processing '%s'\n", params.XsdPath)
+func Convert(xsdPath, goModule, outputDir string, xmlnsOverrides []string, outputFile, templatePackage, templateName string) error {
+	fmt.Printf("Processing '%s'\n", xsdPath)
 	fmt.Printf("Cmd: moovio_xsd2go convert "+
-		"--xsd-file=%s "+
-		"--output-dir=%s "+
+		"%s %s %s "+
+		"--xmlns-override=%s "+
 		"--output-file=%s "+
-		"--go-module-import=%s "+
-		"--template-package=%s"+
-		"--template-name=%s"+
-		"--xmlns-override=%s"+
+		"--template-package=%s "+
+		"--template-name=%s "+
 		"\n",
-		params.XsdPath,
-		params.OutputDir, params.OutputFile,
-		params.GoModuleImport,
-		params.TemplatePackage, params.TemplateName,
-		params.XmlnsOverrides,
+		xsdPath,
+		goModule,
+		outputDir,
+		xmlnsOverrides,
+		outputFile,
+		templatePackage,
+		templateName,
 	)
-	if params.TemplatePackage == "" {
-		params.TemplatePackage = "template"
+	if templatePackage == "" {
+		templatePackage = "/pkg/template"
 	}
-	if params.TemplateName == "" {
-		params.TemplateName = "types.tmpl"
+	if templateName == "" {
+		templateName = "types.tmpl"
 	}
 
-	ws, err := xsd.NewWorkspace(fmt.Sprintf("%s/%s", params.GoModuleImport, params.OutputDir), params.XsdPath, params.XmlnsOverrides)
+	ws, err := xsd.NewWorkspace(fmt.Sprintf("%s/%s", goModule, outputDir), xsdPath, xmlnsOverrides)
 	if err != nil {
 		return err
 	}
@@ -51,12 +41,13 @@ func Convert(params Params) error {
 			continue
 		}
 
-		var schemaOutputFile = params.OutputFile
+		var schemaOutputFile = outputFile
+		// TODO JB: this is where the original program wants to use "models.go"
 		if schemaOutputFile == "" {
 			schemaOutputFile = fmt.Sprintf("%s.go", sch.GoPackageName())
 		}
 
-		if err := template.GenerateTypes(sch, params.OutputDir, schemaOutputFile, params.TemplatePackage, params.TemplateName); err != nil {
+		if err := template.GenerateTypes(sch, outputDir, schemaOutputFile, templatePackage, templateName); err != nil {
 			return err
 		}
 	}

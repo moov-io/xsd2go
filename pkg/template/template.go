@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/moov-io/xsd2go/pkg"
+	"github.com/markbates/pkger"
 	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
@@ -58,7 +58,7 @@ func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, tmpl
 }
 
 func newTemplate(tmplDir string, templateName string) (*template.Template, error) {
-	in, err := getFile(filepath.Join(tmplDir, templateName))
+	in, err := getFile(tmplDir, templateName)
 	if err != nil {
 		return nil, err
 	}
@@ -72,10 +72,10 @@ func newTemplate(tmplDir string, templateName string) (*template.Template, error
 	return template.New(templateName).Funcs(template.FuncMap{}).Parse(string(tempText))
 }
 
-func getFile(tmplPath string) (fs.File, error) {
-	file, err := pkg.Templates.Open(tmplPath)
+func getFile(tmplDir string, templateName string) (fs.File, error) {
+	file, err := pkger.Open(tmplDir + "/" + templateName)
 	if err == nil {
 		return file, err
 	}
-	return os.Open(tmplPath)
+	return os.Open(filepath.Join(tmplDir, templateName))
 }

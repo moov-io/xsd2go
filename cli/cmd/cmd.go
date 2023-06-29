@@ -40,15 +40,9 @@ var convert = cli.Command{
 		return nil
 	},
 	Action: func(c *cli.Context) error {
-		err := xsd2go.Convert(xsd2go.Params{
-			XsdPath:         c.Args()[0],
-			GoModuleImport:  c.Args()[1],
-			OutputDir:       c.Args()[2],
-			OutputFile:      c.String("output-file"),
-			TemplatePackage: c.String("template-package"),
-			TemplateName:    c.String("template-name"),
-			XmlnsOverrides:  c.StringSlice("xmlns-override"),
-		})
+		xsdFile, goModule, outputDir := c.Args()[0], c.Args()[1], c.Args()[2]
+		err := xsd2go.Convert(xsdFile, goModule, outputDir, c.StringSlice("xmlns-override"),
+			c.String("output-file"), c.String("template-package"), c.String("template-name"))
 		if err != nil {
 			return cli.NewExitError(err, 1)
 		}
