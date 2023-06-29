@@ -3,8 +3,8 @@ package xsd2go
 import (
 	"fmt"
 
-	"github.com/gocomply/xsd2go/pkg/template"
-	"github.com/gocomply/xsd2go/pkg/xsd"
+	"github.com/moov-io/xsd2go/pkg/template"
+	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
 type Params struct {

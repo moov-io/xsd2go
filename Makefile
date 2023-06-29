@@ -15,7 +15,7 @@ vendor:
 	go mod verify
 
 test:
-	go test -v github.com/gocomply/xsd2go/... -count=1 -p 1 -parallel 1
+	go test -v github.com/moov-io/xsd2go/... -count=1 -p 1 -parallel 1
 
 .PHONY: check
 check:

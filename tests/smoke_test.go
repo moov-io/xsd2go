@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gocomply/xsd2go/pkg/xsd2go"
+	"github.com/moov-io/xsd2go/pkg/xsd2go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
