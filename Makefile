@@ -5,7 +5,7 @@ all: vendor build check test
 
 build:
 	go install golang.org/x/tools/cmd/goimports@latest
-	go build ./cli/moovio_xsd2go
+	go install ./cli/moovio_xsd2go
 
 .PHONY: vendor
 vendor:
