@@ -4,7 +4,7 @@ This project is a fork of https://github.com/GoComply/xsd2go.
 ## Usage
 Run this command with variable names `xsdFile`, `name`, `nsPrefix`, and `tmpl`:
 ```
-gocomply_xsd2go convert \
+moovio_xsd2go convert \
    ${xsdFile} \
    ${module} \
    gen \

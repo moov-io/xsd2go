@@ -19,7 +19,7 @@ type Params struct {
 
 func Convert(params Params) error {
 	fmt.Printf("Processing '%s'\n", params.XsdPath)
-	fmt.Printf("Cmd: gocomply_xsd2go convert "+
+	fmt.Printf("Cmd: moovio_xsd2go convert "+
 		"--xsd-file=%s "+
 		"--output-dir=%s "+
 		"--output-file=%s "+

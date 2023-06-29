@@ -1,4 +1,4 @@
-/gocomply_xsd2go
+/*_xsd2go
 /.idea/*
 /vendor/*
 .DS_Store
