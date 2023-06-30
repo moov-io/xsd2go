@@ -37,7 +37,7 @@ func assertConvertsFine(t *testing.T, xsdPath string) []byte {
 
 	goModule := "user.com/private"
 
-	err = xsd2go.Convert(xsdPath, goModule, outputDir, nil, "models.go", "", "")
+	err = xsd2go.Convert(xsdPath, goModule, outputDir, nil, "/pkg/template/types.tmpl")
 	require.NoError(t, err)
 
 	generatedFilePath, err := locateGeneratedFile(outputDir)
@@ -53,7 +53,7 @@ func assertConvertsFine(t *testing.T, xsdPath string) []byte {
 }
 
 func locateGeneratedFile(outputDir string) (string, error) {
-	golangFiles, err := filepath.Glob(outputDir + "/*/models.go")
+	golangFiles, err := filepath.Glob(outputDir + "/*/*.go")
 	if err != nil {
 		return "", err
 	}

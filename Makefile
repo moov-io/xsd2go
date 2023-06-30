@@ -11,7 +11,6 @@ endif
 all: vendor build check test
 
 build:
-	$(GO) install golang.org/x/tools/cmd/goimports@latest
 	$(GOBUILD) ./cli/moovio_xsd2go
 
 .PHONY: pkger vendor

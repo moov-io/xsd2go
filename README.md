@@ -6,11 +6,15 @@ Run this command with variable names `xsdFile`, `name`, `nsPrefix`, and `tmpl`:
 ```
 moovio_xsd2go convert \
    ${xsdFile} \
-   ${module} \
-   gen \
-   --output-file=${name}.go \
-   --template-package=${tmpl} \
-   --template-name=${name}.tmpl \
+   ${goModule} \
+   ${outputDir} \
+   --template-name=/templates/${name}.tmpl \
    --xmlns-override='my.namespace=your.namespace'
 ```
 Where the first parameter is the XSD file, the second parameter is the go module and the third parameter is the output folder. The remaining parameters are optional.
+
+## Installation
+
+```
+go get -u -v github.com/moov-io/xsd2go/cli/moovio_xsd2go
+```

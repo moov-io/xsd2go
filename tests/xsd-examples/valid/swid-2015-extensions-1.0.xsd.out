@@ -2,6 +2,8 @@
 // Models for http://csrc.nist.gov/ns/swid/2015-extensions/1.0
 package swid_2015_extensions_1_0
 
+import ()
+
 // XSD ComplexType declarations
 
 // XSD SimpleType declarations

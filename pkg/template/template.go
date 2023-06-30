@@ -7,7 +7,6 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"text/template"
 
@@ -15,8 +14,8 @@ import (
 	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
-func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, tmplDir string, templateName string) error {
-	t, err := newTemplate(tmplDir, templateName)
+func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, templateName string) error {
+	t, err := newTemplate(templateName)
 	if err != nil {
 		return err
 	}
@@ -49,16 +48,11 @@ func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, tmpl
 		return err
 	}
 
-	_, err = exec.Command("goimports", "-w", f.Name()).Output()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func newTemplate(tmplDir string, templateName string) (*template.Template, error) {
-	in, err := getFile(tmplDir, templateName)
+func newTemplate(templateName string) (*template.Template, error) {
+	in, err := getFile(templateName)
 	if err != nil {
 		return nil, err
 	}
@@ -72,10 +66,11 @@ func newTemplate(tmplDir string, templateName string) (*template.Template, error
 	return template.New(templateName).Funcs(template.FuncMap{}).Parse(string(tempText))
 }
 
-func getFile(tmplDir string, templateName string) (fs.File, error) {
-	file, err := pkger.Open(tmplDir + "/" + templateName)
+// getFile returns a fs.File either using pkger or the OS. This allows for templates outside the packaged program to be used.
+func getFile(templateName string) (fs.File, error) {
+	file, err := pkger.Open(templateName)
 	if err == nil {
 		return file, err
 	}
-	return os.Open(filepath.Join(tmplDir, templateName))
+	return os.Open(templateName)
 }

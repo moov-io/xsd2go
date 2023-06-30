@@ -7,29 +7,16 @@ import (
 	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
-func Convert(xsdPath, goModule, outputDir string, xmlnsOverrides []string, outputFile, templatePackage, templateName string) error {
+func Convert(xsdPath, goModule, outputDir string, xmlnsOverrides []string, templateName string) error {
 	fmt.Printf("Processing '%s'\n", xsdPath)
 	fmt.Printf("Cmd: moovio_xsd2go convert "+
-		"%s %s %s "+
-		"--xmlns-override=%s "+
-		"--output-file=%s "+
-		"--template-package=%s "+
-		"--template-name=%s "+
-		"\n",
+		"%s %s %s --xmlns-override=%s --template-name=%s \n",
 		xsdPath,
 		goModule,
 		outputDir,
 		xmlnsOverrides,
-		outputFile,
-		templatePackage,
 		templateName,
 	)
-	if templatePackage == "" {
-		templatePackage = "/pkg/template"
-	}
-	if templateName == "" {
-		templateName = "types.tmpl"
-	}
 
 	ws, err := xsd.NewWorkspace(fmt.Sprintf("%s/%s", goModule, outputDir), xsdPath, xmlnsOverrides)
 	if err != nil {
@@ -41,13 +28,15 @@ func Convert(xsdPath, goModule, outputDir string, xmlnsOverrides []string, outpu
 			continue
 		}
 
-		var schemaOutputFile = outputFile
-		// TODO JB: this is where the original program wants to use "models.go"
-		if schemaOutputFile == "" {
-			schemaOutputFile = fmt.Sprintf("%s.go", sch.GoPackageName())
+		// TODO JB
+		// Set the name of the generated file. This is where the original program wants to use "models.go".
+		// This is for imported XSDs which generate to their own file, so a parameter can't work here.
+		var outputFile string
+		if outputFile == "" {
+			outputFile = fmt.Sprintf("%s.go", sch.GoPackageName())
 		}
 
-		if err := template.GenerateTypes(sch, outputDir, schemaOutputFile, templatePackage, templateName); err != nil {
+		if err := template.GenerateTypes(sch, outputDir, outputFile, templateName); err != nil {
 			return err
 		}
 	}
