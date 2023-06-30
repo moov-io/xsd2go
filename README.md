@@ -16,5 +16,5 @@ Where the first parameter is the XSD file, the second parameter is the go module
 ## Installation
 
 ```
-go get -u -v github.com/moov-io/xsd2go/cli/moovio_xsd2go
+go install github.com/moov-io/xsd2go/cli/moovio_xsd2go
 ```
