@@ -2,8 +2,6 @@ package xsd
 
 import (
 	"encoding/xml"
-
-	"github.com/iancoleman/strcase"
 )
 
 type Extension struct {
@@ -16,7 +14,7 @@ type Extension struct {
 }
 
 func (ext *Extension) GoName() string {
-	return strcase.ToCamel(ext.typ.GoName())
+	return ext.typ.GoName()
 }
 
 func (ext *Extension) Attributes() []Attribute {

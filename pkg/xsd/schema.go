@@ -288,10 +288,6 @@ func (sch *Schema) isElementInlined(el *Element) bool {
 	return !found
 }
 
-func (sch *Schema) NsPrefix() string {
-	return sch.Xmlns.PrefixByUri(sch.TargetNamespace)
-}
-
 type Import struct {
 	XMLName        xml.Name `xml:"http://www.w3.org/2001/XMLSchema import"`
 	Namespace      string   `xml:"namespace,attr"`

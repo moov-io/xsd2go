@@ -169,11 +169,3 @@ func (e *Element) prefixNameWithParent(parentElement *Element) {
 func (e *Element) Array() bool {
 	return e.isArray()
 }
-
-func (e *Element) TargetNamespace() string {
-	return e.schema.TargetNamespace
-}
-
-func (e *Element) NsPrefix() string {
-	return e.schema.NsPrefix()
-}
