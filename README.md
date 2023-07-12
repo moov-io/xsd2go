@@ -9,6 +9,7 @@ moovio_xsd2go convert \
    ${goModule} \
    ${outputDir} \
    --template-name=/templates/${name}.tmpl \
+   --output-file=${output} \
    --xmlns-override='my.namespace=your.namespace'
 ```
 Where the first parameter is the XSD file, the second parameter is the go module and the third parameter is the output folder. The remaining parameters are optional.

@@ -41,7 +41,7 @@ var convert = cli.Command{
 	},
 	Action: func(c *cli.Context) error {
 		xsdFile, goModule, outputDir := c.Args()[0], c.Args()[1], c.Args()[2]
-		err := xsd2go.Convert(xsdFile, goModule, outputDir, c.StringSlice("xmlns-override"), c.String("template-name"))
+		err := xsd2go.Convert(xsdFile, goModule, outputDir, c.StringSlice("xmlns-override"), c.String("template-name"), c.String("output-file"))
 		if err != nil {
 			return cli.NewExitError(err, 1)
 		}
@@ -52,6 +52,10 @@ var convert = cli.Command{
 			Name:  "template-name",
 			Value: "/pkg/template/types.tmpl",
 			Usage: "Defines template to use for the packaged application. Example: --template-name='rtp/message.tmpl'",
+		},
+		cli.StringFlag{
+			Name:  "output-file",
+			Usage: "Defines template to use for the packaged application. Example: --output-file='models.go'",
 		},
 		cli.StringSliceFlag{
 			Name:  "xmlns-override",
