@@ -91,9 +91,6 @@ func (ws *Workspace) loadXsd(xsdPath string, cache bool) (*Schema, error) {
 		if err := schema.Imports[idx].load(ws, dir); err != nil {
 			return nil, err
 		}
-		// Copy the Xmlns with all the namespace prefixes.
-		// This allows for our prefixes to be set on the individual schemas.
-		schema.Imports[idx].ImportedSchema.Xmlns = schema.Xmlns
 	}
 	schema.compile()
 	return schema, nil

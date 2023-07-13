@@ -8,9 +8,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/markbates/pkger"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
@@ -63,7 +67,12 @@ func newTemplate(templateName string) (*template.Template, error) {
 		return nil, err
 	}
 
-	return template.New(templateName).Funcs(template.FuncMap{}).Parse(string(tempText))
+	return template.New(templateName).Funcs(template.FuncMap{
+		"title": cases.Title(language.AmericanEnglish).String,
+		"upper": strings.ToUpper,
+		"lower": strings.ToLower,
+		"split": strings.Split,
+	}).Parse(string(tempText))
 }
 
 // getFile returns a fs.File either using pkger or the OS. This allows for templates outside the packaged program to be used.
