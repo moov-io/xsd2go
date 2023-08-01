@@ -1,6 +1,7 @@
 /*_xsd2go
-/.idea/*
-/vendor/*
+.idea/
+.vscode/
+/vendor/
 .DS_Store
 /lint-project.sh
-/bin/*
+/bin/
