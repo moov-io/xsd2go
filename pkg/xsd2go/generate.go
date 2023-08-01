@@ -29,15 +29,7 @@ func Convert(xsdPath, goModule, outputDir string, xmlnsOverrides []string, templ
 			continue
 		}
 
-		// TODO JB
-		// Set the name of the generated file. This is where the original program wants to use "models.go".
-		// This is for imported XSDs which generate to their own file, so a parameter can't work here.
-		var generatedOutputFile = fmt.Sprintf("%s.go", sch.GoPackageName())
-		if outputFile != "" {
-			generatedOutputFile = outputFile
-		}
-
-		if err := template.GenerateTypes(sch, outputDir, generatedOutputFile, templateName); err != nil {
+		if err := template.GenerateTypes(sch, outputDir, outputFile, templateName); err != nil {
 			return err
 		}
 	}

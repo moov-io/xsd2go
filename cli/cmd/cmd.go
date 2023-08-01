@@ -55,6 +55,7 @@ var convert = cli.Command{
 		},
 		cli.StringFlag{
 			Name:  "output-file",
+			Value: "models.go",
 			Usage: "Defines template to use for the packaged application. Example: --output-file='models.go'",
 		},
 		cli.StringSliceFlag{
