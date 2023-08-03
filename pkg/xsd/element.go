@@ -165,3 +165,7 @@ func (e *Element) prefixNameWithParent(parentElement *Element) {
 		e.nameOverride = fmt.Sprintf("%s-%s", parentElement.GoName(), e.GoName())
 	}
 }
+
+func (e *Element) Array() bool {
+	return e.isArray()
+}

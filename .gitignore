@@ -1,1 +1,7 @@
-/gocomply_xsd2go
+/*_xsd2go
+.idea/
+.vscode/
+/vendor/
+.DS_Store
+/lint-project.sh
+/bin/

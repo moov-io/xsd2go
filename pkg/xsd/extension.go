@@ -13,6 +13,10 @@ type Extension struct {
 	typ              Type
 }
 
+func (ext *Extension) GoName() string {
+	return ext.typ.GoName()
+}
+
 func (ext *Extension) Attributes() []Attribute {
 	attrs := ext.AttributesDirect
 	if ext.typ != nil {

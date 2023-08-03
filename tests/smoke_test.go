@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gocomply/xsd2go/pkg/xsd2go"
+	"github.com/moov-io/xsd2go/pkg/xsd2go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +37,7 @@ func assertConvertsFine(t *testing.T, xsdPath string) []byte {
 
 	goModule := "user.com/private"
 
-	err = xsd2go.Convert(xsdPath, goModule, outputDir, nil)
+	err = xsd2go.Convert(xsdPath, goModule, outputDir, nil, []string{"/pkg/template/types.tmpl"}, "models.go")
 	require.NoError(t, err)
 
 	generatedFilePath, err := locateGeneratedFile(outputDir)

@@ -4,17 +4,22 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
-	"github.com/gocomply/xsd2go/pkg/xsd"
 	"github.com/markbates/pkger"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
+	"github.com/moov-io/xsd2go/pkg/xsd"
 )
 
-func GenerateTypes(schema *xsd.Schema, outputDir string) error {
-	t, err := newTemplate(outputDir)
+func GenerateTypes(schema *xsd.Schema, outputDir string, outputFile string, templateName string) error {
+	t, err := newTemplate(templateName)
 	if err != nil {
 		return err
 	}
@@ -25,7 +30,7 @@ func GenerateTypes(schema *xsd.Schema, outputDir string) error {
 	if err != nil {
 		return err
 	}
-	goFile := filepath.Clean(filepath.Join(dir, "models.go"))
+	goFile := filepath.Clean(filepath.Join(dir, outputFile))
 	fmt.Printf("\tGenerating '%s'\n", goFile)
 	f, err := os.Create(goFile)
 	if err != nil {
@@ -50,8 +55,8 @@ func GenerateTypes(schema *xsd.Schema, outputDir string) error {
 	return nil
 }
 
-func newTemplate(outputDir string) (*template.Template, error) {
-	in, err := pkger.Open("/pkg/template/types.tmpl")
+func newTemplate(templateName string) (*template.Template, error) {
+	in, err := getFile(templateName)
 	if err != nil {
 		return nil, err
 	}
@@ -62,5 +67,19 @@ func newTemplate(outputDir string) (*template.Template, error) {
 		return nil, err
 	}
 
-	return template.New("types.tmpl").Funcs(template.FuncMap{}).Parse(string(tempText))
+	return template.New(templateName).Funcs(template.FuncMap{
+		"title": cases.Title(language.AmericanEnglish).String,
+		"upper": strings.ToUpper,
+		"lower": strings.ToLower,
+		"split": strings.Split,
+	}).Parse(string(tempText))
+}
+
+// getFile returns a fs.File either using pkger or the OS. This allows for templates outside the packaged program to be used.
+func getFile(templateName string) (fs.File, error) {
+	file, err := pkger.Open(templateName)
+	if err == nil {
+		return file, err
+	}
+	return os.Open(templateName)
 }

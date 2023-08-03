@@ -246,8 +246,8 @@ func (st staticType) compile(*Schema, *Element) {
 var staticTypes = map[string]staticType{
 	"string":             "string",
 	"language":           "string",
-	"dateTime":           "string",
-	"date":               "string",
+	"dateTime":           "time.Time",
+	"date":               "time.Time",
 	"base64Binary":       "string",
 	"normalizedString":   "string",
 	"token":              "string",
@@ -274,7 +274,7 @@ var staticTypes = map[string]staticType{
 	"gMonthDay":          "string",
 	"gDay":               "string",
 	"gMonth":             "string",
-	"time":               "string",
+	"time":               "time.Time",
 }
 
 func StaticType(name string) staticType {

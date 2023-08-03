@@ -11,6 +11,7 @@ import (
 type Enumeration struct {
 	XMLName xml.Name `xml:"http://www.w3.org/2001/XMLSchema enumeration"`
 	Value   string   `xml:"value,attr"`
+	Fixed   *bool    `xml:"fixed,attr"`
 }
 
 // Public Go Name of this struct item
