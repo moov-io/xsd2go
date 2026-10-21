@@ -1,14 +1,14 @@
 module github.com/moov-io/xsd2go
 
-go 1.18
+go 1.26.0
 
 require (
 	github.com/iancoleman/strcase v0.2.0
 	github.com/markbates/pkger v0.17.1
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli v1.22.14
-	golang.org/x/net v0.23.0
-	golang.org/x/text v0.14.0
+	golang.org/x/net v0.60.0
+	golang.org/x/text v0.42.0
 )
 
 require (

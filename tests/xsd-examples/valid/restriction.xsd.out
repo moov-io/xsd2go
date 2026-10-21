@@ -20,7 +20,7 @@ type Myelement struct {
 type StateRefType struct {
 	XMLName xml.Name
 
-	StateRef StateIdpattern `xml:"state_ref,attr"`
+	StateRef StateIDPattern `xml:"state_ref,attr"`
 
 	innerXml string `xml:",innerxml"`
 }
@@ -48,7 +48,7 @@ type MyElementType struct {
 
 // XSD SimpleType declarations
 
-type StateIdpattern string
+type StateIDPattern string
 
 type SimpleDatatypeEnumeration string
 
